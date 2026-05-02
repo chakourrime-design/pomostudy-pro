@@ -9,9 +9,14 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({ registerType: 'autoUpdate' })
   ],
+  resolve: {
+    alias: {
+      '@': '/src'  // ✅ important pour les imports @/
+    }
+  },
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: './src/tests/setup.ts'
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
   }
 })

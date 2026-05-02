@@ -26,14 +26,11 @@ export function phaseDuration(state: TimerState): number {
 }
 
 // Détermine la prochaine phase
-function nextPhase(state: TimerState): TimerState['phase'] {
-  if (state.phase === 'WORK') {
-    const nextPomo = state.pomosCompleted + 1
-    return nextPomo % state.config.pomosBeforeLongBreak === 0
-      ? 'LONG_BREAK'
-      : 'SHORT_BREAK'
-  }
-  return 'IDLE'
+function nextPhase(pomosCompleted: number, pomosBeforeLongBreak: number): TimerState['phase'] {
+  // pomosCompleted est déjà le NOUVEAU total (après incrément)
+  return pomosCompleted % pomosBeforeLongBreak === 0
+    ? 'LONG_BREAK'
+    : 'SHORT_BREAK'
 }
 
 export function timerReducer(
@@ -78,19 +75,30 @@ export function timerReducer(
       return { ...state, elapsed: newElapsed }
     }
 
-    case 'PHASE_COMPLETE': {
-      const isWork = state.phase === 'WORK'
-      const newPomos = isWork
-        ? state.pomosCompleted + 1
-        : state.pomosCompleted
+    // Dans le switch :
+case 'PHASE_COMPLETE': {
+  if (state.phase !== 'WORK' && 
+      state.phase !== 'SHORT_BREAK' && 
+      state.phase !== 'LONG_BREAK') return state
 
-      return {
-        ...state,
-        phase: nextPhase({ ...state, pomosCompleted: newPomos }),
-        elapsed: 0,
-        pomosCompleted: newPomos
-      }
-    }
+  const isWork = state.phase === 'WORK'
+  const newPomos = isWork ? state.pomosCompleted + 1 : state.pomosCompleted
+
+  // Déterminer la prochaine phase
+  let nextPh: TimerState['phase']
+  if (isWork) {
+    nextPh = nextPhase(newPomos, state.config.pomosBeforeLongBreak)
+  } else {
+    nextPh = 'IDLE'
+  }
+
+  return {
+    ...state,
+    phase: nextPh,
+    elapsed: 0,
+    pomosCompleted: newPomos
+  }
+}
 
     case 'SET_CONFIG':
       return { ...state, config: action.payload }
