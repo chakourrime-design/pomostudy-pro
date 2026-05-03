@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { PomoSession } from '../types'
+import type { PomoSession } from '../components/types'
 
 interface SessionStore {
   sessions: PomoSession[]
