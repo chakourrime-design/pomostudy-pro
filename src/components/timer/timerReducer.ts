@@ -1,4 +1,6 @@
-import type { TimerState, TimerAction, TimerConfig } from '@/components/types'
+import type { TimerState, TimerConfig } from '../types'
+import { TimerAction } from '../types'
+export type { TimerAction }
 
 export const DEFAULT_CONFIG: TimerConfig = {
   workDuration: 1500,         // 25 min

@@ -20,8 +20,10 @@ export default function App() {
         timeDisplay={timeDisplay}
         phase={state.phase}
       />
-      <PhaseControls phase={state.phase} dispatch={dispatch} />
-      <SubjectSelector />
+      <PhaseControls state={state} dispatch={dispatch} />
+      <SubjectSelector onSelect={function (): void {
+        throw new Error('Function not implemented.')
+      } } />
     </div>
   )
 }

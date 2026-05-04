@@ -1,59 +1,26 @@
-import { motion } from 'framer-motion'
-import type { TimerAction, TimerPhase } from '@/components/types'
+import type { Dispatch } from 'react'
+import type { TimerAction } from './timerReducer'
 
-type Props = {
-  phase: TimerPhase
-  dispatch: (action: TimerAction) => void
+interface Props {
+  dispatch: Dispatch<TimerAction>
+  isRunning: boolean
 }
 
-export function PhaseControls({ phase, dispatch }: Props) {
-  const isRunning = phase === 'WORK' || phase === 'SHORT_BREAK' || phase === 'LONG_BREAK'
-  const isPaused  = phase === 'PAUSED'
-  const isIdle    = phase === 'IDLE'
-
+export function PhaseControls({ dispatch, isRunning }: Props) {
   return (
-    <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-
-      {/* Reset */}
-      <motion.button
-        whileTap={{ scale: 0.93 }}
+    <div className="flex gap-4 mt-6 justify-center">
+      <button
+        onClick={() => dispatch({ type: isRunning ? 'PAUSE' : 'START' })}
+        className="px-8 py-3 rounded-xl bg-red-500 text-white font-bold text-lg hover:bg-red-600 transition"
+      >
+        {isRunning ? '⏸ Pause' : '▶ Démarrer'}
+      </button>
+      <button
         onClick={() => dispatch({ type: 'RESET' })}
-        style={{
-          padding: '10px 20px',
-          borderRadius: 999,
-          border: '1px solid rgba(255,255,255,0.15)',
-          background: 'transparent',
-          cursor: 'pointer',
-          fontSize: 14,
-          fontWeight: 500
-        }}
+        className="px-8 py-3 rounded-xl bg-gray-600 text-white font-bold text-lg hover:bg-gray-700 transition"
       >
-        Reset
-      </motion.button>
-
-      {/* Start / Pause / Resume */}
-      <motion.button
-        whileTap={{ scale: 0.93 }}
-        onClick={() => {
-          if (isIdle)    dispatch({ type: 'START' })
-          if (isRunning) dispatch({ type: 'PAUSE' })
-          if (isPaused)  dispatch({ type: 'RESUME' })
-        }}
-        style={{
-          padding: '12px 32px',
-          borderRadius: 999,
-          border: 'none',
-          background: '#EF4444',
-          color: '#fff',
-          cursor: 'pointer',
-          fontSize: 16,
-          fontWeight: 700,
-          boxShadow: '0 0 20px rgba(239,68,68,0.4)'
-        }}
-      >
-        {isIdle ? 'Démarrer' : isRunning ? 'Pause' : 'Reprendre'}
-      </motion.button>
-
+        🔄 Reset
+      </button>
     </div>
   )
 }
