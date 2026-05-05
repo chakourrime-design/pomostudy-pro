@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ThemeTab } from '../themes/ThemeTab'
-
+import { MusicPlayer } from '../music/MusicPlayer'
 type Tab = 'themes' | 'stats' | 'music' | 'playlist'
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
@@ -38,7 +38,7 @@ export function BottomBar() {
           )}
           {activeTab === 'music' && (
             <div style={{ padding: 16, color: '#fff', opacity: 0.5 }}>
-              Musique — POMO-16
+              <MusicPlayer />
             </div>
           )}
           {activeTab === 'playlist' && (
