@@ -10,7 +10,7 @@ export function Logo() {
       zIndex: 100
     }}>
       <img
-        src="/logo-club.png"
+        src="/Club-Logo.png"
         alt="Club Productivité ENSAB"
         style={{ width: 36, height: 36, borderRadius: 8 }}
       />

@@ -1,20 +1,19 @@
 import { motion } from 'framer-motion'
-import type { TimerPhase } from '@/components/types'
+import type { TimerPhase } from '../types'
 
 type Props = {
-  progress: number        // 0 → 1
-  timeDisplay: string     // "24:59"
+  progress: number
+  timeDisplay: string
   phase: TimerPhase
-  size?: number           // px, défaut 280
+  size?: number
 }
 
-// Couleur selon la phase
 const PHASE_COLORS: Record<TimerPhase, string> = {
-  IDLE:        '#6B7280',   // gris
-  WORK:        '#EF4444',   // rouge tomate
-  SHORT_BREAK: '#10B981',   // vert
-  LONG_BREAK:  '#3B82F6',   // bleu
-  PAUSED:      '#F59E0B'    // ambre
+  IDLE:        '#ffffff',
+  WORK:        '#EF4444',
+  SHORT_BREAK: '#22C55E',
+  LONG_BREAK:  '#3B82F6',
+  PAUSED:      '#F59E0B'
 }
 
 const PHASE_LABELS: Record<TimerPhase, string> = {
@@ -22,7 +21,7 @@ const PHASE_LABELS: Record<TimerPhase, string> = {
   WORK:        'Focus',
   SHORT_BREAK: 'Pause courte',
   LONG_BREAK:  'Pause longue',
-  PAUSED:      'Pause'
+  PAUSED:      'En pause'
 }
 
 export function PomoTimer({ progress, timeDisplay, phase, size = 280 }: Props) {
@@ -30,8 +29,6 @@ export function PomoTimer({ progress, timeDisplay, phase, size = 280 }: Props) {
   const strokeWidth = 10
   const radius = center - strokeWidth - 4
   const circumference = 2 * Math.PI * radius
-
-  // L'arc part du haut (-90°) et avance dans le sens horaire
   const dashOffset = circumference * (1 - progress)
   const color = PHASE_COLORS[phase]
 
@@ -45,20 +42,14 @@ export function PomoTimer({ progress, timeDisplay, phase, size = 280 }: Props) {
       >
         {/* Cercle de fond */}
         <circle
-          cx={center}
-          cy={center}
-          r={radius}
+          cx={center} cy={center} r={radius}
           fill="none"
-          stroke="currentColor"
+          stroke="rgba(255,255,255,0.15)"
           strokeWidth={strokeWidth}
-          opacity={0.1}
         />
-
         {/* Arc de progression */}
         <motion.circle
-          cx={center}
-          cy={center}
-          r={radius}
+          cx={center} cy={center} r={radius}
           fill="none"
           stroke={color}
           strokeWidth={strokeWidth}
@@ -70,39 +61,51 @@ export function PomoTimer({ progress, timeDisplay, phase, size = 280 }: Props) {
         />
       </svg>
 
-      {/* Texte centré sur le SVG */}
+      {/* Contenu centré */}
       <div style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 4
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center', gap: 6
       }}>
+        {/* Fond flouté derrière le texte */}
+        <div style={{
+          position: 'absolute',
+          width: size * 0.7,
+          height: size * 0.4,
+          background: 'rgba(0,0,0,0.55)',
+          backdropFilter: 'blur(12px)',
+          borderRadius: 20,
+        }} />
+
         {/* Temps */}
         <motion.span
           key={timeDisplay}
-          initial={{ opacity: 0.6, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ scale: 0.95 }}
+          animate={{ scale: 1 }}
           style={{
-            fontSize: size * 0.18,
-            fontWeight: 700,
+            position: 'relative',
+            fontSize: size * 0.2,
+            fontWeight: 800,
             fontVariantNumeric: 'tabular-nums',
             letterSpacing: '-0.02em',
-            color
+            color: '#ffffff',
+            textShadow: `0 0 30px ${color}, 0 2px 8px rgba(0,0,0,0.8)`,
+            zIndex: 1
           }}
         >
           {timeDisplay}
         </motion.span>
 
-        {/* Label de phase */}
+        {/* Label phase */}
         <span style={{
-          fontSize: size * 0.06,
-          fontWeight: 500,
-          opacity: 0.5,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase'
+          position: 'relative',
+          fontSize: size * 0.062,
+          fontWeight: 600,
+          color,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          textShadow: '0 1px 4px rgba(0,0,0,0.9)',
+          zIndex: 1
         }}>
           {PHASE_LABELS[phase]}
         </span>

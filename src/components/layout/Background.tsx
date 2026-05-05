@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 
 const BACKGROUNDS = [
-  '/backgrounds/ensab-1.jpg',
-  '/backgrounds/ensab-2.jpg',
-  '/backgrounds/ensab-3.jpg',
+  '/backgrounds/téléchargement.jfif',
+  '/backgrounds/téléchargement.png',
+  './Club-Logo.png',
 ]
 
 export function Background() {
