@@ -1,6 +1,7 @@
 import { useReducer, useEffect, useRef } from 'react'
 import { timerReducer, INITIAL_STATE, phaseDuration } from './timerReducer'
 import { useTimerSound } from '../../hooks/useTimerSound'
+import { sendPhaseEndNotification } from '../../services/notificationService'
 
 export function useTimer() {
   const [state, dispatch] = useReducer(timerReducer, INITIAL_STATE)
@@ -53,6 +54,12 @@ export function useTimer() {
     if (isRunning && remaining <= 0 && !hasPlayedRef.current) {
       hasPlayedRef.current = true
       playEndSound()
+      const phaseMap: Record<string, 'work' | 'break'> = {
+        'WORK': 'work' as const,
+        'SHORT_BREAK': 'break' as const,
+        'LONG_BREAK': 'break' as const
+      }
+      sendPhaseEndNotification(phaseMap[state.phase])
     }
 
     if (remaining > 1) {
