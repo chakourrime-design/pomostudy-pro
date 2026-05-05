@@ -6,6 +6,7 @@ import { SubjectSelector } from './components/subjects/SubjectSelector'
 import { requestNotificationPermission, sendNotification } from './services/NotificationAPI'
 import { playEndSound } from './services/AudioAPI'
 import { subjectsByFilieres } from './components/subjects/subjectsByFilieres'
+import { Background } from './components/layout/Background'
 
 const filieres = Object.keys(subjectsByFilieres) // ['Architecture', 'Génie Civil', 'Informatique', 'Design']
 
@@ -55,6 +56,7 @@ export default function App() {
 
       <PomoTimer progress={progress} timeDisplay={timeDisplay} phase={state.phase} />
       <PhaseControls isRunning={state.phase === 'WORK'} dispatch={dispatch} />
+      <Background />
     </div>
   )
 }
