@@ -8,6 +8,7 @@ import { playEndSound } from './services/AudioAPI'
 import { subjectsByFilieres } from './components/subjects/subjectsByFilieres'
 import { Background } from './components/layout/Background'
 import { Logo } from './components/ui/Logo'
+import { BottomBar } from './components/layout/BottomBar'
 
 const filieres = Object.keys(subjectsByFilieres) // ['Architecture', 'Génie Civil', 'Informatique', 'Design']
 
@@ -59,6 +60,7 @@ export default function App() {
       <PhaseControls isRunning={state.phase === 'WORK'} dispatch={dispatch} />
       <Background />
       <Logo />
+      <BottomBar />
     </div>
   )
 }
