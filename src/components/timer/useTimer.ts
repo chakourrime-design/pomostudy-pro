@@ -1,5 +1,6 @@
 import { useReducer, useEffect, useRef } from 'react'
 import { timerReducer, INITIAL_STATE, phaseDuration } from './timerReducer'
+import { useTimerSound } from '../../hooks/useTimerSound'
 
 export function useTimer() {
   const [state, dispatch] = useReducer(timerReducer, INITIAL_STATE)
@@ -39,6 +40,25 @@ export function useTimer() {
   const total = phaseDuration(state)
   const remaining = Math.max(0, total - state.elapsed)
   const progress = total > 0 ? state.elapsed / total : 0
+
+  const { playEndSound } = useTimerSound()
+  const hasPlayedRef = useRef(false)
+
+  useEffect(() => {
+    const isRunning =
+      state.phase === 'WORK' ||
+      state.phase === 'SHORT_BREAK' ||
+      state.phase === 'LONG_BREAK'
+
+    if (isRunning && remaining <= 0 && !hasPlayedRef.current) {
+      hasPlayedRef.current = true
+      playEndSound()
+    }
+
+    if (remaining > 1) {
+      hasPlayedRef.current = false
+    }
+  }, [remaining, state.phase, playEndSound])
 
   const minutes = Math.floor(remaining / 60).toString().padStart(2, '0')
   const seconds = Math.floor(remaining % 60).toString().padStart(2, '0')
