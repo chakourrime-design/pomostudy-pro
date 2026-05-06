@@ -9,10 +9,11 @@ type Track = {
 }
 
 const AMBIENT_TRACKS: Track[] = [
-  { id: 'rain',   name: 'Pluie',        src: '/sounds/rain.mp3',   emoji: '🌧️' },
-  { id: 'cafe',   name: 'Café',         src: '/sounds/cafe.mp3',   emoji: '☕' },
-  { id: 'forest', name: 'Forêt',        src: '/sounds/forest.mp3', emoji: '🌿' },
-  { id: 'focus',  name: 'Focus',        src: '/sounds/focus.mp3',  emoji: '🎯' },
+  { id: 'rain',   name: 'Pluie',        src: '/sounds/rainAndThunder.mp3',   emoji: '🌧️' },
+  { id: 'cafe',   name: 'Cheminée',         src: '/sounds/CampfireWoods.mp3',   emoji: '🔥' },
+  { id: 'forest', name: 'Forêt',        src: '/sounds/forestBirds.mp3', emoji: '🌿' },
+  { id: 'focus',  name: 'Focus',        src: '/sounds/BackgroundMusicFocus.mp3',  emoji: '🎯' },
+  { id: 'waves',  name: 'Vagues',        src: '/sounds/waves.mp3',  emoji: '🌊' },
 ]
 
 export function MusicPlayer() {

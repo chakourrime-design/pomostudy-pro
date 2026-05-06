@@ -11,8 +11,8 @@ type BgOption = {
 
 const BACKGROUNDS = [
   { id: 'ensab1', src: '/backgrounds/background1.jfif', label: 'Nature', color: '' },
-  { id: 'ensab2', src: '/backgrounds/téléchargement(1).jfif', label: 'Pets', color: '' },
-  { id: 'ensab3', src: '/backgrounds/téléchargement(2).jfif', label: 'Anime', color: '' },
+  { id: 'ensab2', src: '/backgrounds/background2.jfif', label: 'Pets', color: '' },
+  { id: 'ensab3', src: '/backgrounds/background3.jfif', label: 'Anime', color: '' },
 ] as const satisfies readonly { id: string; src: string; label: string; color: string }[]
 
 const SOLID_COLORS: BgOption[] = [
