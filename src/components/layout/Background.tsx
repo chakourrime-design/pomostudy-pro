@@ -1,16 +1,30 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
+// ✅ Renommé BgOption pour éviter le conflit avec le type global Background
+type BgOption = {
+  id: string
+  src: string
+  label: string
+  color?: string
+}
+
 const BACKGROUNDS = [
-  { id: 'ensab1', src: '/backgrounds/background1.jfif', label: 'Nature' },
-  { id: 'ensab2', src: '/backgrounds/téléchargement(1).jfif', label: 'Pets' },
-  { id: 'ensab3', src: '/backgrounds/téléchargement(2).jfif', label: 'Anime' },
+  { id: 'ensab1', src: '/backgrounds/background1.jfif', label: 'Nature', color: '' },
+  { id: 'ensab2', src: '/backgrounds/téléchargement(1).jfif', label: 'Pets', color: '' },
+  { id: 'ensab3', src: '/backgrounds/téléchargement(2).jfif', label: 'Anime', color: '' },
+] as const satisfies readonly { id: string; src: string; label: string; color: string }[]
+
+const SOLID_COLORS: BgOption[] = [
+  { id: 'color1', src: '', label: 'Noir',   color: '#0a0a0a' },
+  { id: 'color2', src: '', label: 'Forêt',  color: '#0D1F0F' },
+  { id: 'color3', src: '', label: 'Océan',  color: '#0C1A2E' },
+  { id: 'color4', src: '', label: 'Sunset', color: '#1C0A00' },
 ]
 
 export function Background() {
-  const [selected, setSelected] = useState(BACKGROUNDS[0])
+  const [selected, setSelected] = useState<BgOption>(BACKGROUNDS[0])
   const [showPicker, setShowPicker] = useState(false)
-
   return (
     <>
       {/* Background actif */}
@@ -23,7 +37,8 @@ export function Background() {
           transition={{ duration: 0.8 }}
           style={{
             position: 'fixed', inset: 0, zIndex: -1,
-            backgroundImage: `url(${selected.src})`,
+            backgroundImage: selected.src ? `url(${selected.src})` : 'none',
+            backgroundColor: selected.color ?? '#0a0a0a',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
@@ -82,16 +97,16 @@ export function Background() {
               display: 'flex',
               flexDirection: 'column',
               gap: 10,
-              minWidth: 180
+              minWidth: 200
             }}
           >
+            {/* Photos */}
             <span style={{
-              color: '#fff', fontSize: 12,
-              fontWeight: 600, opacity: 0.6,
-              letterSpacing: '0.08em',
+              color: '#fff', fontSize: 11, fontWeight: 600,
+              opacity: 0.5, letterSpacing: '0.08em',
               textTransform: 'uppercase'
             }}>
-              Choisir un fond
+              Photos
             </span>
 
             {BACKGROUNDS.map(bg => (
@@ -104,26 +119,20 @@ export function Background() {
                   setShowPicker(false)
                 }}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  padding: '8px 10px',
-                  borderRadius: 10,
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '8px 10px', borderRadius: 10,
                   border: selected.id === bg.id
                     ? '2px solid #EF4444'
                     : '1px solid rgba(255,255,255,0.1)',
                   background: selected.id === bg.id
                     ? 'rgba(239,68,68,0.2)'
                     : 'rgba(255,255,255,0.05)',
-                  cursor: 'pointer',
-                  width: '100%',
+                  cursor: 'pointer', width: '100%',
                   transition: 'all 0.15s'
                 }}
               >
-                {/* Miniature */}
                 <div style={{
-                  width: 48, height: 32,
-                  borderRadius: 6,
+                  width: 48, height: 32, borderRadius: 6,
                   backgroundImage: `url(${bg.src})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
@@ -142,34 +151,31 @@ export function Background() {
               </motion.button>
             ))}
 
-            {/* Option couleur unie */}
+            {/* Couleurs unies */}
             <div style={{
               borderTop: '1px solid rgba(255,255,255,0.1)',
               paddingTop: 8,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 6
+              display: 'flex', flexDirection: 'column', gap: 8
             }}>
               <span style={{
-                color: '#fff', fontSize: 11,
-                opacity: 0.5, letterSpacing: '0.06em',
-                textTransform: 'uppercase'
+                color: '#fff', fontSize: 11, opacity: 0.5,
+                letterSpacing: '0.06em', textTransform: 'uppercase'
               }}>
                 Couleur unie
               </span>
               <div style={{ display: 'flex', gap: 8 }}>
-                {['#0a0a0a', '#0D1F0F', '#0C1A2E', '#1C0A00'].map(color => (
+                {SOLID_COLORS.map(c => (
                   <button
-                    key={color}
+                    key={c.id}
                     onClick={() => {
-                      setSelected({ id: color, src: '', label: color })
+                      setSelected(c)  // ✅ même type Background
                       setShowPicker(false)
                     }}
+                    title={c.label}
                     style={{
-                      width: 28, height: 28,
-                      borderRadius: 8,
-                      background: color,
-                      border: selected.id === color
+                      width: 28, height: 28, borderRadius: 8,
+                      background: c.color,
+                      border: selected.id === c.id
                         ? '2px solid #EF4444'
                         : '1px solid rgba(255,255,255,0.2)',
                       cursor: 'pointer'
@@ -178,6 +184,7 @@ export function Background() {
                 ))}
               </div>
             </div>
+
           </motion.div>
         )}
       </AnimatePresence>
