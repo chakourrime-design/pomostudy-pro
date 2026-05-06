@@ -1,5 +1,7 @@
+import { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { TimerPhase } from '../types'
+import { requestNotificationPermission } from '../../services/notificationService'
 
 type Props = {
   progress: number
@@ -31,6 +33,10 @@ export function PomoTimer({ progress, timeDisplay, phase, size = 280 }: Props) {
   const circumference = 2 * Math.PI * radius
   const dashOffset = circumference * (1 - progress)
   const color = PHASE_COLORS[phase]
+
+  useEffect(() => {
+    requestNotificationPermission()
+  }, [])
 
   return (
     <div style={{ position: 'relative', width: size, height: size }}>

@@ -3,7 +3,8 @@ import { timerReducer, INITIAL_STATE, phaseDuration } from './timerReducer'
 import { useTimerSound } from '../../hooks/useTimerSound'
 import { sendPhaseEndNotification } from '../../services/notificationService'
 
-export function useTimer() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function useTimer(_selectedSubject: string) {
   const [state, dispatch] = useReducer(timerReducer, INITIAL_STATE)
   const rafRef = useRef<number | null>(null)
   const lastTickRef = useRef<number | null>(null)
@@ -54,12 +55,7 @@ export function useTimer() {
     if (isRunning && remaining <= 0 && !hasPlayedRef.current) {
       hasPlayedRef.current = true
       playEndSound()
-      const phaseMap: Record<string, 'work' | 'break'> = {
-        'WORK': 'work' as const,
-        'SHORT_BREAK': 'break' as const,
-        'LONG_BREAK': 'break' as const
-      }
-      sendPhaseEndNotification(phaseMap[state.phase])
+      sendPhaseEndNotification(state.phase)
     }
 
     if (remaining > 1) {
@@ -70,11 +66,5 @@ export function useTimer() {
   const minutes = Math.floor(remaining / 60).toString().padStart(2, '0')
   const seconds = Math.floor(remaining % 60).toString().padStart(2, '0')
 
-  return {
-    state,
-    dispatch,
-    remaining,
-    progress,
-    timeDisplay: `${minutes}:${seconds}`
-  }
+  return { state, dispatch, remaining, progress, timeDisplay: `${minutes}:${seconds}` }
 }

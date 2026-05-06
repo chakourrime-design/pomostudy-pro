@@ -8,15 +8,15 @@
   transition: border-color 0.3s;
   margin-bottom: 24px;
 
-  &:hover {
+  
+}
+&:hover {
     border-color: var(--accent-border);
   }
   &:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
-}
-
 .hero {
   position: relative;
 
@@ -181,4 +181,242 @@
     right: 0;
     border-right-color: var(--border);
   }
+}
+/* ── SoundPicker ── */
+.sound-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+.sound-list {
+  display: flex;
+  gap: 8px;
+}
+.sound-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.sound-btn.active {
+  border-color: #6c63ff;
+  background: rgba(108,99,255,0.3);
+}
+.sound-picker label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: rgba(255,255,255,0.8);
+  font-size: 0.85rem;
+}
+/* ── FocusButton ── */
+.focus-btn {
+  padding: 12px 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6c63ff, #48cfad);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.focus-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+}
+.focus-btn.active {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+/* ── FocusModeIcon ── */
+.focus-icon-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+.focus-icon-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+/* ── Focus Mode global ── */
+[data-focus-mode="true"] .bottom-bar,
+[data-focus-mode="true"] .sidebar,
+[data-focus-mode="true"] .header-nav {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+/* ── DateTimeClock ── */
+.datetime-clock {
+  text-align: center;
+  color: rgba(255,255,255,0.9);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.clock-time {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+}
+.clock-date {
+  font-size: 0.9rem;
+  opacity: 0.75;
+  text-transform: capitalize;
+  margin-top: 2px;
+}
+.focus-mode .bottom-bar,
+.focus-mode .sidebar,
+.focus-mode .stats-panel {
+  display: none;
+}
+
+.focus-mode .timer-container {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+/* ── DateTimeClock ── */
+.datetime-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: rgba(255,255,255,0.95);
+  text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+.clock-time {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.clock-date {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  text-transform: capitalize;
+  margin-top: 2px;
+}
+
+/* ── SubjectSelector filière buttons ── */
+.filiere-btn {
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.85);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: all 0.2s;
+}
+.filiere-btn.active,
+.filiere-btn:hover {
+  background: #e53e3e;
+  border-color: #e53e3e;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* ── SoundPicker ── */
+.sound-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+.sound-picker h3 {
+  color: rgba(255,255,255,0.9);
+  font-size: 0.85rem;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.sound-list {
+  display: flex;
+  gap: 8px;
+}
+.sound-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08);
+  color: white;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+.sound-btn:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.4);
+}
+.sound-btn.active {
+  border-color: #e53e3e;
+  background: rgba(229,62,62,0.25);
+  color: white;
+}
+.sound-picker label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.8rem;
+}
+.sound-picker input[type="range"] {
+  width: 100px;
+  accent-color: #e53e3e;
+}
+
+/* ── FocusButton ── */
+.focus-btn {
+  padding: 11px 32px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e53e3e, #c53030);
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 15px rgba(229,62,62,0.4);
+}
+.focus-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 25px rgba(229,62,62,0.55);
+}
+
+/* ── Sélection matière ── */
+.subject-btn {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.3);
+  color: rgba(255,255,255,0.8);
+  font-size: 0.82rem;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: all 0.2s;
+}
+.subject-btn:hover,
+.subject-btn.active {
+  background: #e53e3e;
+  border-color: #e53e3e;
+  color: white;
 }

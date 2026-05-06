@@ -22,7 +22,6 @@ export function PhaseControls({ phase, dispatch }: Props) {
       borderRadius: 999,
       border: '1px solid rgba(255,255,255,0.12)'
     }}>
-      {/* Bouton principal */}
       <motion.button
         whileTap={{ scale: 0.93 }}
         whileHover={{ scale: 1.05 }}
@@ -35,9 +34,7 @@ export function PhaseControls({ phase, dispatch }: Props) {
           padding: '12px 32px',
           borderRadius: 999,
           border: 'none',
-          background: isRunning
-            ? 'rgba(239,68,68,0.85)'
-            : 'rgba(239,68,68,0.9)',
+          background: 'rgba(239,68,68,0.9)',
           color: '#fff',
           cursor: 'pointer',
           fontSize: 15,
@@ -50,13 +47,8 @@ export function PhaseControls({ phase, dispatch }: Props) {
         {label}
       </motion.button>
 
-      {/* Séparateur */}
-      <div style={{
-        width: 1, height: 28,
-        background: 'rgba(255,255,255,0.15)'
-      }} />
+      <div style={{ width: 1, height: 28, background: 'rgba(255,255,255,0.15)' }} />
 
-      {/* Bouton Reset */}
       <motion.button
         whileTap={{ scale: 0.93 }}
         whileHover={{ scale: 1.05 }}

@@ -2,10 +2,9 @@ import { useState, useRef } from 'react'
 import { PomoTimer } from './PomoTimer'
 import { PhaseControls } from './PhaseControls'
 import { useTimer } from './useTimer'
-import { SubjectSelector } from '../../subjects/SubjectSelector'
 
 export function DraggableTimer() {
-  const { state, dispatch, progress, timeDisplay } = useTimer()
+  const { state, dispatch, progress, timeDisplay } = useTimer('')
 
   const [position, setPosition] = useState({ x: window.innerWidth / 2 - 150, y: 80 })
   const isDragging = useRef(false)
@@ -35,7 +34,7 @@ export function DraggableTimer() {
     <div
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
-      style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}
+      style={{ position: 'relative', inset: 0, pointerEvents: 'none' }}
     >
       <div
         onMouseDown={onMouseDown}
@@ -44,6 +43,7 @@ export function DraggableTimer() {
           left: position.x,
           top: position.y,
           pointerEvents: 'all',
+          // eslint-disable-next-line react-hooks/refs
           cursor: isDragging.current ? 'grabbing' : 'grab',
           display: 'flex',
           flexDirection: 'column',
@@ -52,12 +52,6 @@ export function DraggableTimer() {
           userSelect: 'none'
         }}
       >
-        {/* SubjectSelector au dessus */}
-        <div onMouseDown={e => e.stopPropagation()}>
-          <SubjectSelector />
-        </div>
-
-        {/* Timer SVG */}
         <PomoTimer
           progress={progress}
           timeDisplay={timeDisplay}
@@ -65,7 +59,6 @@ export function DraggableTimer() {
           size={260}
         />
 
-        {/* Boutons */}
         <div onMouseDown={e => e.stopPropagation()}>
           <PhaseControls phase={state.phase} dispatch={dispatch} />
         </div>
