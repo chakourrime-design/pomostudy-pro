@@ -1,33 +1,36 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-// ✅ Renommé BgOption pour éviter le conflit avec le type global Background
-type BgOption = {
+// Interface exportée pour être utilisée ailleurs si besoin
+export interface BgOption {
   id: string
-  src: string
   label: string
+  src?: string
   color?: string
 }
 
-const BACKGROUNDS = [
-  { id: 'ensab1', src: '/backgrounds/background1.jfif', label: 'Nature', color: '' },
-  { id: 'ensab2', src: '/backgrounds/background2.jfif', label: 'Pets', color: '' },
-  { id: 'ensab3', src: '/backgrounds/background3.jfif', label: 'Anime', color: '' },
-] as const satisfies readonly { id: string; src: string; label: string; color: string }[]
+// Constantes définies avant le composant pour éviter les erreurs de référence
+const BACKGROUNDS: BgOption[] = [
+  { id: 'ensab1', src: '/backgrounds/background1.jfif', label: 'Nature' },
+  { id: 'ensab2', src: '/backgrounds/background2.jfif', label: 'Pets' },
+  { id: 'ensab3', src: '/backgrounds/background3.jfif', label: 'Anime' },
+]
 
 const SOLID_COLORS: BgOption[] = [
-  { id: 'color1', src: '', label: 'Noir',   color: '#0a0a0a' },
-  { id: 'color2', src: '', label: 'Forêt',  color: '#0D1F0F' },
-  { id: 'color3', src: '', label: 'Océan',  color: '#0C1A2E' },
-  { id: 'color4', src: '', label: 'Sunset', color: '#1C0A00' },
+  { id: 'color1', label: 'Noir',   color: '#0a0a0a' },
+  { id: 'color2', label: 'Forêt',  color: '#0D1F0F' },
+  { id: 'color3', label: 'Océan',  color: '#0C1A2E' },
+  { id: 'color4', label: 'Sunset', color: '#1C0A00' },
 ]
 
 export function Background() {
-  const [selected, setSelected] = useState<BgOption>(BACKGROUNDS[0])
+  // Initialisation sécurisée
+  const [selected, setSelected] = useState<BgOption>(BACKGROUNDS[0] as BgOption)
   const [showPicker, setShowPicker] = useState(false)
+
   return (
     <>
-      {/* Background actif */}
+      {/* 1. Rendu de l'image ou de la couleur de fond */}
       <AnimatePresence mode="wait">
         <motion.div
           key={selected.id}
@@ -36,155 +39,118 @@ export function Background() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
           style={{
-            position: 'fixed', inset: 0, zIndex: -1,
+            position: 'fixed',
+            inset: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: -2,
             backgroundImage: selected.src ? `url(${selected.src})` : 'none',
-            backgroundColor: selected.color ?? '#0a0a0a',
+            backgroundColor: selected.color || '#0a0a0a',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
         />
       </AnimatePresence>
 
-      {/* Overlay sombre */}
+      {/* 2. Overlay pour le contraste (zIndex -1) */}
       <div style={{
-        position: 'fixed', inset: 0, zIndex: -1,
-        background: 'rgba(0,0,0,0.45)'
+        position: 'fixed',
+        inset: 0,
+        zIndex: -1,
+        background: 'rgba(0,0,0,0.3)',
+        pointerEvents: 'none'
       }} />
 
-      {/* Bouton pour ouvrir le sélecteur */}
+      {/* 3. Bouton flottant (Positionné en bas à droite) */}
       <motion.button
-        whileTap={{ scale: 0.93 }}
-        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => setShowPicker(!showPicker)}
         style={{
           position: 'fixed',
-          top: 20, right: 24,
-          zIndex: 200,
-          background: 'rgba(0,0,0,0.5)',
+          bottom: 25,
+          right: 25,
+          zIndex: 2000, // Très élevé pour rester visible au-dessus de tout
+          background: 'rgba(255,255,255,0.1)',
           backdropFilter: 'blur(12px)',
+          WebkitBackdropFilter: 'blur(12px)',
           border: '1px solid rgba(255,255,255,0.2)',
           borderRadius: 999,
-          padding: '8px 16px',
+          padding: '10px 20px',
           color: '#fff',
           cursor: 'pointer',
-          fontSize: 13,
+          fontSize: '13px',
           fontWeight: 500,
           display: 'flex',
           alignItems: 'center',
-          gap: 6
+          gap: 8,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
         }}
       >
         🖼️ Background
       </motion.button>
 
-      {/* Sélecteur de photos */}
+      {/* 4. Menu de sélection (S'ouvre vers le haut) */}
       <AnimatePresence>
         {showPicker && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: 15 }}
             style={{
               position: 'fixed',
-              top: 60, right: 24,
-              zIndex: 200,
-              background: 'rgba(0,0,0,0.75)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: 16,
-              padding: 16,
+              bottom: 80,
+              right: 25,
+              zIndex: 2000,
+              background: 'rgba(15,15,15,0.95)',
+              backdropFilter: 'blur(25px)',
+              WebkitBackdropFilter: 'blur(25px)',
+              borderRadius: 24,
+              border: '1px solid rgba(255,255,255,0.1)',
+              padding: '20px',
+              width: 240,
               display: 'flex',
               flexDirection: 'column',
-              gap: 10,
-              minWidth: 200
+              gap: 12,
+              boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
             }}
           >
-            {/* Photos */}
-            <span style={{
-              color: '#fff', fontSize: 11, fontWeight: 600,
-              opacity: 0.5, letterSpacing: '0.08em',
-              textTransform: 'uppercase'
-            }}>
-              Photos
-            </span>
-
-            {BACKGROUNDS.map(bg => (
-              <motion.button
-                key={bg.id}
-                whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.02 }}
-                onClick={() => {
-                  setSelected(bg)
-                  setShowPicker(false)
-                }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '8px 10px', borderRadius: 10,
-                  border: selected.id === bg.id
-                    ? '2px solid #EF4444'
-                    : '1px solid rgba(255,255,255,0.1)',
-                  background: selected.id === bg.id
-                    ? 'rgba(239,68,68,0.2)'
-                    : 'rgba(255,255,255,0.05)',
-                  cursor: 'pointer', width: '100%',
-                  transition: 'all 0.15s'
-                }}
-              >
-                <div style={{
-                  width: 48, height: 32, borderRadius: 6,
-                  backgroundImage: `url(${bg.src})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  flexShrink: 0,
-                  border: '1px solid rgba(255,255,255,0.1)'
-                }} />
-                <span style={{
-                  color: '#fff', fontSize: 13,
-                  fontWeight: selected.id === bg.id ? 700 : 400
-                }}>
-                  {bg.label}
-                </span>
-                {selected.id === bg.id && (
-                  <span style={{ marginLeft: 'auto', color: '#EF4444' }}>✓</span>
-                )}
-              </motion.button>
-            ))}
-
-            {/* Couleurs unies */}
-            <div style={{
-              borderTop: '1px solid rgba(255,255,255,0.1)',
-              paddingTop: 8,
-              display: 'flex', flexDirection: 'column', gap: 8
-            }}>
-              <span style={{
-                color: '#fff', fontSize: 11, opacity: 0.5,
-                letterSpacing: '0.06em', textTransform: 'uppercase'
-              }}>
-                Couleur unie
-              </span>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {SOLID_COLORS.map(c => (
-                  <button
-                    key={c.id}
-                    onClick={() => {
-                      setSelected(c)  // ✅ même type Background
-                      setShowPicker(false)
-                    }}
-                    title={c.label}
-                    style={{
-                      width: 28, height: 28, borderRadius: 8,
-                      background: c.color,
-                      border: selected.id === c.id
-                        ? '2px solid #EF4444'
-                        : '1px solid rgba(255,255,255,0.2)',
-                      cursor: 'pointer'
-                    }}
-                  />
-                ))}
-              </div>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, textTransform: 'uppercase', fontWeight: 700, margin: 0 }}>Photos</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {BACKGROUNDS.map(bg => (
+                <button 
+                  key={bg.id} 
+                  onClick={() => { setSelected(bg); setShowPicker(false); }}
+                  style={{ 
+                    display: 'flex', gap: 12, background: 'none', border: 'none', 
+                    color: '#fff', cursor: 'pointer', alignItems: 'center', padding: '4px' 
+                  }}
+                >
+                  <div style={{ 
+                    width: 44, height: 28, 
+                    backgroundImage: `url(${bg.src})`, 
+                    backgroundSize: 'cover', borderRadius: 6,
+                    border: '1px solid rgba(255,255,255,0.1)'
+                  }} />
+                  <span style={{ fontSize: '13px' }}>{bg.label}</span>
+                </button>
+              ))}
             </div>
 
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 10, textTransform: 'uppercase', fontWeight: 700, marginTop: 8, margin: 0 }}>Couleurs</p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {SOLID_COLORS.map((c: BgOption) => (
+                <button 
+                  key={c.id} 
+                  onClick={() => { setSelected(c); setShowPicker(false); }}
+                  style={{ 
+                    width: 32, height: 32, borderRadius: 8, 
+                    background: c.color, 
+                    border: selected.id === c.id ? '2px solid #fff' : '1px solid rgba(255,255,255,0.2)', 
+                    cursor: 'pointer' 
+                  }} 
+                />
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

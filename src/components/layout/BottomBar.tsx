@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { ThemeTab } from '../themes/ThemeTab'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ThemeTab } from '../themes/ThemeTab' // Ton composant avec les images Nature/Anime
 import { MusicPlayer } from '../music/MusicPlayer'
 
 type Tab = 'themes' | 'stats' | 'music' | 'playlist'
@@ -17,7 +18,7 @@ export function BottomBar() {
   return (
     <div style={{
       position: 'fixed',
-      bottom: 30, // On remonte un peu pour voir le fond en dessous
+      bottom: 30,
       left: '50%',
       transform: 'translateX(-50%)',
       zIndex: 1000,
@@ -25,70 +26,87 @@ export function BottomBar() {
       flexDirection: 'column',
       alignItems: 'center',
       gap: 15,
-      width: 'auto', 
-      pointerEvents: 'none' // Important : permet de cliquer sur le fond si on ne touche pas aux boutons
+      pointerEvents: 'none'
     }}>
       
-      {/* Contenu de l'onglet actif */}
-      {activeTab && (
-        <div style={{
-          pointerEvents: 'all',
-          background: 'rgba(255, 255, 255, 0.05)', // Très léger blanc au lieu du noir
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          borderRadius: 28,
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          padding: '16px',
-          width: '100%',
-          minWidth: 350,
-          boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
-        }}>
-          {activeTab === 'themes' && <ThemeTab />}
-          {activeTab === 'stats' && (
-            <div style={{ padding: 20, color: '#fff', textAlign: 'center' }}>Stats - Sprint 3</div>
-          )}
-          {activeTab === 'music' && <MusicPlayer />}
-          {activeTab === 'playlist' && (
-            <div style={{ padding: 20, color: '#fff', textAlign: 'center' }}>Playlist Active</div>
-          )}
-        </div>
-      )}
+      {/* Fenêtre de l'onglet actif */}
+      <AnimatePresence>
+        {activeTab && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            style={{
+              pointerEvents: 'all',
+              background: 'rgba(15, 15, 15, 0.7)',
+              backdropFilter: 'blur(30px)',
+              WebkitBackdropFilter: 'blur(30px)',
+              borderRadius: 32,
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              padding: '20px',
+              width: 380,
+              boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+            }}
+          >
+            {activeTab === 'themes' && <ThemeTab />}
+            {activeTab === 'stats' && (
+              <div style={{ padding: 20, color: '#fff', textAlign: 'center' }}>
+                <h3 style={{ margin: 0 }}>Statistiques</h3>
+                <p style={{ opacity: 0.6, fontSize: 13 }}>Sprint 3 en cours...</p>
+              </div>
+            )}
+            {activeTab === 'music' && <MusicPlayer />}
+            {activeTab === 'playlist' && (
+              <div style={{ padding: 20, color: '#fff', textAlign: 'center' }}>Playlist Active</div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Barre de navigation style Pilule */}
       <div style={{
         pointerEvents: 'all',
         display: 'flex',
         alignItems: 'center',
-        gap: 10,
-        background: 'rgba(255, 255, 255, 0.08)', // Fond clair transparent
-        backdropFilter: 'blur(15px)',
-        WebkitBackdropFilter: 'blur(15px)',
+        gap: 6,
+        background: 'rgba(255, 255, 255, 0.08)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
         borderRadius: 40,
         border: '1px solid rgba(255, 255, 255, 0.15)',
-        padding: '8px 12px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+        padding: '6px',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
       }}>
         {TABS.map(tab => (
-          <button
+          <motion.button
             key={tab.id}
+            whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setActiveTab(activeTab === tab.id ? null : tab.id)}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.2)' : 'transparent',
+              background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
               border: 'none',
               cursor: 'pointer',
-              padding: '10px 18px',
+              padding: '10px 20px',
               borderRadius: 30,
-              transition: 'all 0.3s ease',
+              transition: 'all 0.2s ease',
+              color: '#fff'
             }}
           >
             <span style={{ fontSize: 20 }}>{tab.icon}</span>
             {activeTab === tab.id && (
-              <span style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{tab.label}</span>
+              <motion.span 
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                style={{ fontSize: 13, fontWeight: 600 }}
+              >
+                {tab.label}
+              </motion.span>
             )}
-          </button>
+          </motion.button>
         ))}
       </div>
     </div>
