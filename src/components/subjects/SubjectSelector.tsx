@@ -1,16 +1,29 @@
 import { subjectsByFilieres } from './subjectsByFilieres'
+import { useState } from 'react'
 
+// On adapte l'interface pour correspondre à l'appel dans App.tsx
 interface Props {
-  filiere: string
-  selected: string
-  onSelect: (subject: string) => void
-  onFiliereChange: (filiere: string) => void
+  onSelectSubject: (subject: string) => void
 }
 
 const FILIERES = Object.keys(subjectsByFilieres)
 
-export function SubjectSelector({ filiere, selected, onSelect, onFiliereChange }: Props) {
-  const subjects = subjectsByFilieres[filiere] ?? []
+export function SubjectSelector({ onSelectSubject }: Props) {
+  // On gère l'état interne des filières ici pour simplifier App.tsx
+  const [currentFiliere, setCurrentFiliere] = useState<string>('')
+  const [currentSubject, setCurrentSubject] = useState<string>('')
+
+  const subjects = subjectsByFilieres[currentFiliere as keyof typeof subjectsByFilieres] ?? []
+
+  const handleSubjectClick = (subject: string) => {
+    setCurrentSubject(subject)
+    onSelectSubject(subject) // C'est cette ligne qui fait le lien avec le Timer !
+  }
+
+  const handleFiliereClick = (f: string) => {
+    setCurrentFiliere(f)
+    setCurrentSubject('') // On reset le sujet quand on change de filière
+  }
 
   return (
     <div className="flex flex-col items-center gap-3 p-4 w-full max-w-md">
@@ -20,12 +33,17 @@ export function SubjectSelector({ filiere, selected, onSelect, onFiliereChange }
         {FILIERES.map(f => (
           <button
             key={f}
-            onClick={() => onFiliereChange(f)}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition
-              ${filiere === f
-                ? 'bg-red-500 text-white shadow-lg scale-105'
-                : 'bg-gray-700 text-gray-300 hover:bg-red-400 hover:text-white'
-              }`}
+            onClick={() => handleFiliereClick(f)}
+            style={{
+               padding: '6px 14px',
+               borderRadius: '14px',
+               fontSize: '11px',
+               cursor: 'pointer',
+               border: '1px solid rgba(255,255,255,0.1)',
+               background: currentFiliere === f ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)',
+               color: currentFiliere === f ? '#fff' : 'rgba(255,255,255,0.6)',
+               transition: 'all 0.3s'
+            }}
           >
             {f}
           </button>
@@ -33,17 +51,22 @@ export function SubjectSelector({ filiere, selected, onSelect, onFiliereChange }
       </div>
 
       {/* Sélecteur de matière */}
-      {filiere && (
+      {currentFiliere && (
         <div className="flex flex-wrap gap-2 justify-center">
           {subjects.map(subject => (
             <button
               key={subject}
-              onClick={() => onSelect(subject)}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition
-                ${selected === subject
-                  ? 'bg-red-500 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-red-400 hover:text-white'
-                }`}
+              onClick={() => handleSubjectClick(subject)}
+              style={{
+                padding: '4px 12px',
+                borderRadius: '10px',
+                fontSize: '11px',
+                cursor: 'pointer',
+                border: 'none',
+                background: currentSubject === subject ? '#FF5F5F' : 'rgba(255,255,255,0.1)',
+                color: '#fff',
+                transition: 'all 0.2s'
+              }}
             >
               {subject}
             </button>
@@ -51,8 +74,8 @@ export function SubjectSelector({ filiere, selected, onSelect, onFiliereChange }
         </div>
       )}
 
-      {!filiere && (
-        <p className="text-gray-400 text-sm">Sélectionne ta filière ↑</p>
+      {!currentFiliere && (
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>Sélectionne ta filière ↑</p>
       )}
 
     </div>

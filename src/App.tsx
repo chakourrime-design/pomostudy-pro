@@ -3,6 +3,7 @@ import { PomoTimer } from './components/timer/PomoTimer'
 import { PhaseControls } from './components/timer/PhaseControls'
 import { useTimer } from './components/timer/useTimer'
 import { SubjectSelector } from './components/subjects/SubjectSelector'
+import { TaskManager } from './components/tasks/TasksManager' // Importation de la tâche 23
 import { requestNotificationPermission, sendNotification } from './services/NotificationAPI'
 import { Background } from './components/layout/Background'
 import { Logo } from './components/ui/Logo'
@@ -14,24 +15,20 @@ import { FocusButton } from './components/FocusButton'
 
 // ─── COMPOSANT FENÊTRE FLOTTANTE ────────────────────────────────
 function FloatingWindow({
-  filiere, setFiliere, subject, setSubject
+  subject, setSubject
 }: {
-  filiere: string
-  setFiliere: (f: string) => void
   subject: string
   setSubject: (s: string) => void
 }) {
   const { state, dispatch, progress, timeDisplay } = useTimer(subject)
 
-  // Position par défaut
+  // Position par défaut centrée
   const [position, setPosition] = useState({
     x: window.innerWidth / 2 - 190,
-    y: window.innerHeight / 2 - 260
+    y: window.innerHeight / 2 - 300
   })
 
-  // State pour le curseur et l'animation (évite l'erreur isDragging en rouge)
   const [activeDrag, setActiveDrag] = useState(false)
-
   const isDragging = useRef(false)
   const offset = useRef({ x: 0, y: 0 })
 
@@ -74,8 +71,6 @@ function FloatingWindow({
           cursor: activeDrag ? 'grabbing' : 'grab',
           userSelect: 'none',
           width: 380,
-
-          // Aesthetic WonderSpace : Fond semi-transparent pour voir le Background
           background: 'rgba(15, 15, 15, 0.4)', 
           backdropFilter: 'blur(25px)',
           WebkitBackdropFilter: 'blur(25px)',
@@ -85,43 +80,42 @@ function FloatingWindow({
           boxShadow: activeDrag 
             ? '0 30px 80px rgba(0,0,0,0.5)' 
             : '0 15px 50px rgba(0,0,0,0.3)',
-
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 20,
+          gap: 18,
           transition: activeDrag ? 'none' : 'transform 0.2s ease',
-          transform: activeDrag ? 'scale(1.02)' : 'scale(1)'
+          transform: activeDrag ? 'scale(1.01)' : 'scale(1)'
         }}
       >
+        {/* Handle de drag */}
         <div style={{
           width: 40, height: 4, borderRadius: 10,
-          background: 'rgba(255,255,255,0.2)', marginBottom: 4
+          background: 'rgba(255,255,255,0.2)', marginBottom: 2
         }} />
 
+        {/* POMO-22: SubjectSelector */}
         <div onMouseDown={e => e.stopPropagation()} style={{ width: '100%' }}>
-          <SubjectSelector
-            filiere={filiere}
-            selected={subject}
-            onSelect={(s: string) => setSubject(s)}
-            onFiliereChange={(f: string) => {
-              setFiliere(f)
-              setSubject('')
-            }}
-          />
+          <SubjectSelector onSelectSubject={(s: string) => setSubject(s)} />
+        </div>
+
+        {/* POMO-23: TaskManager (Juste sous le sélecteur) */}
+        <div onMouseDown={e => e.stopPropagation()} style={{ width: '100%' }}>
+          <TaskManager currentSubject={subject} />
         </div>
 
         <PomoTimer
           progress={progress}
           timeDisplay={timeDisplay}
           phase={state.phase}
-          size={230}
+          size={210}
         />
 
+        {/* Indicateurs de progression (Pomodoros) */}
         <div style={{ display: 'flex', gap: 8 }}>
           {Array.from({ length: state.config.pomosBeforeLongBreak }).map((_, i) => (
             <div key={i} style={{
-              width: 10, height: 10, borderRadius: '50%',
+              width: 8, height: 8, borderRadius: '50%',
               background: i < state.pomosCompleted % state.config.pomosBeforeLongBreak
                 ? '#FF5F5F' : 'rgba(255,255,255,0.2)',
               transition: 'background 0.3s'
@@ -129,11 +123,13 @@ function FloatingWindow({
           ))}
         </div>
 
+        {/* Contrôles du Timer */}
         <div onMouseDown={e => e.stopPropagation()}>
           <PhaseControls phase={state.phase} dispatch={dispatch} />
         </div>
 
-        <div onMouseDown={e => e.stopPropagation()} style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+        {/* Actions secondaires */}
+        <div onMouseDown={e => e.stopPropagation()} style={{ display: 'flex', gap: 12, marginTop: 4 }}>
           <SoundPicker />
           <FocusButton />
         </div>
@@ -144,10 +140,7 @@ function FloatingWindow({
 
 // ─── COMPOSANT APP PRINCIPAL ────────────────────────────────────
 export default function App() {
-  const [filiere, setFiliere] = useState('')
   const [subject, setSubject] = useState('')
-  
-  // Utilisation du hook pour les notifications globales
   const { state } = useTimer(subject)
 
   useEffect(() => {
@@ -156,9 +149,9 @@ export default function App() {
 
   useEffect(() => {
     if (state.phase === 'SHORT_BREAK' || state.phase === 'LONG_BREAK') {
-      sendNotification('Pomodoro terminé !', 'C\'est l\'heure de la pause 🎉')
+      sendNotification('Pomodoro terminé !', `C'est l'heure de la pause après votre session de ${subject || 'travail'} 🎉`)
     }
-  }, [state.phase])
+  }, [state.phase, subject])
 
   return (
     <FocusModeOverlay>
@@ -167,19 +160,19 @@ export default function App() {
         height: '100vh',
         overflow: 'hidden',
         position: 'relative',
-        fontFamily: "'Inter', sans-serif"
+        fontFamily: "'Inter', sans-serif",
+        backgroundColor: '#000'
       }}>
-        {/* Le fond est placé ici pour être derrière tout le reste */}
         <Background />
 
-        {/* Interface Fixe (Header) */}
+        {/* Header */}
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0,
           zIndex: 100,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '20px 32px',
+          padding: '24px 40px',
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.4), transparent)',
           pointerEvents: 'none'
         }}>
@@ -187,15 +180,11 @@ export default function App() {
           <div style={{ pointerEvents: 'all' }}><DateTimeClock /></div>
         </div>
 
-        {/* Fenêtre de travail Draggable */}
         <FloatingWindow
-          filiere={filiere}
-          setFiliere={setFiliere}
           subject={subject}
           setSubject={setSubject}
         />
 
-        {/* Barre d'outils basse */}
         <BottomBar />
       </div>
     </FocusModeOverlay>
