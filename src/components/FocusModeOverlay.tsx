@@ -1,16 +1,9 @@
-import { useFocusMode } from '../hooks/useFocusMode'
+import { ReactNode } from 'react';
 
-interface Props { children: React.ReactNode }
-
-export function FocusModeOverlay({ children }: Props) {
-  const { focusActive, toggleFocus } = useFocusMode()
-
+export function FocusModeOverlay({ children }: { children: ReactNode }) {
   return (
-    <div className={`app-wrapper ${focusActive ? 'focus-mode' : ''}`}>
+    <div className="min-h-screen w-full bg-[#050505] selection:bg-red-500/30">
       {children}
-      <button className="focus-icon-btn" onClick={toggleFocus} title="Mode focus">
-        {focusActive ? '👁' : '🙈'}
-      </button>
     </div>
-  )
+  );
 }

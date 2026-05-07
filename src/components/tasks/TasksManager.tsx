@@ -10,7 +10,7 @@ interface Task {
 }
 
 // On ajoute la prop 'subject' pour savoir à quelle matière lier la tâche
-export function TaskManager({ currentSubject }: { currentSubject: string }) {
+export function TasksManager({ currentSubject }: { currentSubject: string }) {
   // Chargement initial depuis le localStorage
   const [tasks, setTasks] = useState<Task[]>(() => {
     const saved = localStorage.getItem('pomo_tasks_history');
