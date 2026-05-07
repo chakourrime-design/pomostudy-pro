@@ -5,7 +5,7 @@ export function useTimerSound() {
   const { selectedSound, volume } = useSoundStore()
 
   const playEndSound = useCallback(() => {
-    const audio = new Audio(`/sounds/${selectedSound}.mp3`)
+    const audio = new Audio(`/sounds/FinishAlarm.mp3`)
     audio.volume = volume
     audio.play().catch(console.error)
   }, [selectedSound, volume])

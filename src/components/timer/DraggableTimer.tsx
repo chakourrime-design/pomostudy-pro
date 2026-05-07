@@ -3,9 +3,14 @@ import { PomoTimer } from './PomoTimer'
 import { PhaseControls } from './PhaseControls'
 import { useTimer } from './useTimer'
 
-export function DraggableTimer() {
-  // Récupération de la logique du timer via ton hook personnalisé
-  const { state, dispatch, progress, timeDisplay } = useTimer('')
+// ✅ 1. Définition de l'interface pour accepter les props de App.tsx
+interface DraggableTimerProps {
+  selectedSubject: string;
+}
+
+export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
+  // ✅ 2. On passe selectedSubject au hook pour que logSession utilise la bonne matière
+  const { state, dispatch, progress, timeDisplay } = useTimer(selectedSubject)
 
   // Position initiale centrée horizontalement
   const [position, setPosition] = useState({ x: window.innerWidth / 2 - 150, y: 80 })
@@ -44,7 +49,7 @@ export function DraggableTimer() {
     <div
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp} // Sécurité si la souris quitte l'écran
+      onMouseLeave={onMouseUp} 
       style={{ 
         position: 'fixed', 
         inset: 0, 
@@ -68,18 +73,16 @@ export function DraggableTimer() {
           gap: 24,
           userSelect: 'none',
           
-          // --- Design Lofi / Aesthetic ---
           padding: '32px 24px',
-          backgroundColor: 'rgba(255, 255, 255, 0.12)', // Verre dépoli
+          backgroundColor: 'rgba(255, 255, 255, 0.12)', 
           backdropFilter: 'blur(15px)',
           WebkitBackdropFilter: 'blur(15px)',
-          borderRadius: '48px', // Coins ultra-arrondis
+          borderRadius: '48px', 
           border: '1px solid rgba(255, 255, 255, 0.25)',
           boxShadow: activeDrag 
             ? '0 20px 40px rgba(0,0,0,0.2)' 
             : '0 10px 25px rgba(0,0,0,0.1)',
           
-          // Animation douce
           transition: 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease',
           transform: activeDrag ? 'scale(1.03)' : (isHovered ? 'scale(1.01)' : 'scale(1)'),
         }}
@@ -92,9 +95,9 @@ export function DraggableTimer() {
           size={220}
         />
 
-        {/* Contrôles de phase (Focus, Short Break, Long Break) */}
+        {/* Contrôles de phase */}
         <div 
-          onMouseDown={e => e.stopPropagation()} // Empêche le drag quand on clique sur les boutons
+          onMouseDown={e => e.stopPropagation()} 
           style={{
             backgroundColor: 'rgba(255, 255, 255, 0.08)',
             borderRadius: '24px',
@@ -103,6 +106,11 @@ export function DraggableTimer() {
           }}
         >
           <PhaseControls phase={state.phase} dispatch={dispatch} />
+        </div>
+
+        {/* Petit rappel de la matière active (Optionnel mais utile) */}
+        <div style={{ fontSize: '12px', opacity: 0.5, marginTop: -10 }}>
+           Focus : {selectedSubject}
         </div>
       </div>
     </div>
