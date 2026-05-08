@@ -26,6 +26,7 @@ export function SubjectSelector({ onSelectSubject }: Props) {
   }
 
   return (
+    
     <div className="flex flex-col items-center gap-3 p-4 w-full max-w-md">
 
       {/* Sélecteur de filière */}
@@ -49,7 +50,12 @@ export function SubjectSelector({ onSelectSubject }: Props) {
           </button>
         ))}
       </div>
-
+      <hr style={{ 
+        border: 'none', 
+        borderTop: '1px solid rgba(255,255,255,0.08)', 
+        margin: '4px 0',
+        width: '100%'
+      }} />
       {/* Sélecteur de matière */}
       {currentFiliere && (
         <div className="flex flex-wrap gap-2 justify-center">

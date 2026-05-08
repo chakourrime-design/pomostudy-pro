@@ -7,8 +7,6 @@ import { FocusModeOverlay } from './components/FocusModeOverlay'
 import { FocusButton } from './components/FocusButton' 
 import { DraggableTimer } from './components/timer/DraggableTimer' 
 import { StudyDashboard } from './components/stats/StudyDashboard'
-
-// ✅ Réimport des composants que tu avais avant
 import { SubjectSelector } from './components/subjects/SubjectSelector'
 import { TasksManager } from './components/tasks/TasksManager'
 
@@ -22,7 +20,7 @@ function App() {
         <Background />
 
         {/* --- HEADER --- */}
-        <header className="absolute top-0 left-0 right-0 p-8 flex justify-between items-start z-50 pointer-events-none">
+        <header className="absolute top-0 left-0 right-0 px-8 py-5 flex justify-between items-start z-50 pointer-events-none">
           <div className="pointer-events-auto">
             <Logo />
           </div>
@@ -31,34 +29,59 @@ function App() {
           </div>
         </header>
 
-        {/* --- ZONE LATERALE GAUCHE (Sélecteur de Filière/Module) --- */}
-        <aside className="absolute top-32 left-8 z-40 w-72 pointer-events-auto">
-          <SubjectSelector 
-            selectedSubject={selectedSubject} 
-            setSelectedSubject={setSelectedSubject} 
-          />
+        {/* --- SIDEBAR GAUCHE UNIQUE --- */}
+        {/* top-20 = espace sous le header/logo, w-64 = largeur fixe 256px */}
+        <aside className="absolute top-20 left-6 z-40 w-64 flex flex-col gap-4 pointer-events-auto">
+          
+          {/* Filières + Matières */}
+          <div style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '14px',
+            padding: '12px 14px',
+          }}>
+            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>
+              Filière &amp; Matière
+            </p>
+            <SubjectSelector onSelectSubject={setSelectedSubject} />
+          </div>
+
+          {/* Stats */}
+          <div style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '14px',
+            padding: '12px 14px',
+          }}>
+            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>
+              Sessions
+            </p>
+            <StudyDashboard />
+          </div>
+
+          {/* Tâches */}
+          <div style={{
+            background: 'rgba(255,255,255,0.05)',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '14px',
+            padding: '12px 14px',
+          }}>
+            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>
+              Tâches
+            </p>
+            <TasksManager currentSubject={selectedSubject} />
+          </div>
+
         </aside>
 
-        {/* --- ZONE LATERALE DROITE (Gestion des tâches) --- */}
-        <aside className="absolute top-32 right-8 z-40 w-80 pointer-events-auto">
-          <TasksManager />
-        </aside>
-
-        {/* --- ZONE CENTRALE (Timer) --- */}
+        {/* --- TIMER CENTRE --- */}
         <main className="relative h-full w-full flex items-center justify-center z-20">
-          <DraggableTimer 
-            selectedSubject={selectedSubject} 
-          />
+          <DraggableTimer selectedSubject={selectedSubject} />
         </main>
 
-        {/* --- ✅ BOUTON FOCUS (Bas Gauche) --- */}
-        <section className="absolute bottom-28 left-8 z-50 pointer-events-auto">
+        {/* --- BOUTON FOCUS (Bas Gauche) --- */}
+        <section className="absolute bottom-20 left-6 z-50 pointer-events-auto">
           <FocusButton />
-        </section>
-
-        {/* --- DASHBOARD (Centré Bas) --- */}
-        <section className="absolute bottom-32 left-1/2 -translate-x-1/2 z-40 pointer-events-auto">
-          <StudyDashboard />
         </section>
 
         {/* --- BARRE DE NAVIGATION BASSE --- */}

@@ -33,11 +33,6 @@
     z-index: 0;
   }
 
-  .framework,
-  .vite {
-    position: absolute;
-  }
-
   .framework {
     z-index: 1;
     top: 34px;
@@ -419,4 +414,66 @@
   background: #e53e3e;
   border-color: #e53e3e;
   color: white;
+}
+/* --- NOUVEAU : Conteneur global pour tout l'alignement gauche --- */
+.left-sidebar-area {
+  position: absolute;
+  top: 140px;      /* Crée l'espace sous le logo PomoStudy */
+  left: 32px;      /* Aligne tout à 32px du bord gauche */
+  width: 320px;    /* FIXE LA LARGEUR : la case tâche ne dépassera plus ! */
+  display: flex;
+  flex-direction: column;
+  gap: 45px;       /* Crée un espace égal entre Filières, Stats et Tâches */
+  z-index: 10;
+}
+
+/* --- Ajustement pour l'input de tâche --- */
+.task-input-custom {
+  width: 100%;     /* Prendra 100% de la sidebar (soit 320px maximum) */
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+}
+.sidebar-left-group {
+  position: absolute;
+  top: 140px;      /* Descend le bloc sous le logo */
+  left: 32px;      /* Aligne au bord gauche */
+  width: 300px;    /* FIXE LA LARGEUR de la case tâche */
+  display: flex;
+  flex-direction: column;
+  gap: 35px;       /* Espace entre filières, stats et tâches */
+  z-index: 50;
+}
+/* --- Boutons Filières --- */
+.filiere-btn {
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.35);
+  color: white;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  transition: all 0.2s;
+  cursor: pointer;
+}
+/* --- Panel Stats --- */
+.stats-panel {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+}
+.task-input {
+  width: 100%;     /* Elle fera 300px max à cause du parent */
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: white;
+  outline: none;
 }
