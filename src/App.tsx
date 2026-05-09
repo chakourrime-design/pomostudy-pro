@@ -9,7 +9,10 @@ import { DraggableTimer } from './components/timer/DraggableTimer'
 import { StudyDashboard } from './components/stats/StudyDashboard'
 import { SubjectSelector } from './components/subjects/SubjectSelector'
 import { TasksManager } from './components/tasks/TasksManager'
-import ContributionHeatmap from './components/stats/ContributionHeatmap' // ← POMO-28
+import ContributionHeatmap from './components/stats/ContributionHeatmap' // POMO-28
+// POMO-29 : MoodWindow est géré DANS DraggableTimer.tsx directement.
+// Aucun changement dans App.tsx pour POMO-29.
+// Voir DraggableTimer.tsx pour le patch complet.
 
 function App() {
   const [selectedSubject, setSelectedSubject] = useState('Génie Logiciel')
@@ -46,7 +49,7 @@ function App() {
             <SubjectSelector onSelectSubject={setSelectedSubject} />
           </div>
 
-          {/* Sessions + Heatmap ← POMO-28 */}
+          {/* Sessions + Heatmap */}
           <div style={{
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
@@ -57,7 +60,6 @@ function App() {
               Sessions
             </p>
             <StudyDashboard />
-            {/* ↓ POMO-28 : grille d'activité 90 jours */}
             <ContributionHeatmap />
           </div>
 
@@ -76,7 +78,10 @@ function App() {
 
         </aside>
 
-        {/* --- TIMER CENTRE --- */}
+        {/* --- TIMER CENTRE ---
+            POMO-29 : MoodWindow est rendu DANS DraggableTimer.
+            DraggableTimer intercepte le clic "Démarrer" et affiche
+            MoodWindow si currentMood === null. Rien à changer ici. */}
         <main className="relative h-full w-full flex items-center justify-center z-20">
           <DraggableTimer selectedSubject={selectedSubject} />
         </main>

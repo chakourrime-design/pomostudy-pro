@@ -4,9 +4,10 @@ import type { TimerAction, TimerPhase } from '../types'
 type Props = {
   phase: TimerPhase
   dispatch: (action: TimerAction) => void
+  onStart?: () => void   // ← POMO-29 : prop optionnelle pour intercepter le START
 }
 
-export function PhaseControls({ phase, dispatch }: Props) {
+export function PhaseControls({ phase, dispatch, onStart }: Props) {
   const isRunning = phase === 'WORK' || phase === 'SHORT_BREAK' || phase === 'LONG_BREAK'
   const isPaused  = phase === 'PAUSED'
   const isIdle    = phase === 'IDLE'
@@ -26,7 +27,12 @@ export function PhaseControls({ phase, dispatch }: Props) {
         whileTap={{ scale: 0.93 }}
         whileHover={{ scale: 1.05 }}
         onClick={() => {
-          if (isIdle)    dispatch({ type: 'START' })
+          if (isIdle) {
+            // ← POMO-29 : si onStart est fourni, on l'appelle (MoodWindow)
+            // sinon fallback sur dispatch direct
+            if (onStart) onStart()
+            else dispatch({ type: 'START' })
+          }
           if (isRunning) dispatch({ type: 'PAUSE' })
           if (isPaused)  dispatch({ type: 'RESUME' })
         }}
