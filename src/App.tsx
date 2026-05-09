@@ -10,8 +10,7 @@ import { StudyDashboard } from './components/stats/StudyDashboard'
 import { SubjectSelector } from './components/subjects/SubjectSelector'
 import { TasksManager } from './components/tasks/TasksManager'
 import ContributionHeatmap from './components/stats/ContributionHeatmap' // POMO-28
-// POMO-30 : GroupManager est ajouté dans BottomBar.tsx (pas dans App.tsx).
-// Voir BottomBar.tsx pour le patch.
+import QuoteWidget from './components/quotes/QuoteWidget'                 // ← POMO-31
 
 function App() {
   const [selectedSubject, setSelectedSubject] = useState('Génie Logiciel')
@@ -19,7 +18,7 @@ function App() {
   return (
     <FocusModeOverlay>
       <div className="relative h-screen w-screen overflow-hidden text-white font-sans">
-        
+
         <Background />
 
         {/* --- HEADER --- */}
@@ -34,7 +33,7 @@ function App() {
 
         {/* --- SIDEBAR GAUCHE --- */}
         <aside className="absolute top-20 left-6 z-40 w-64 flex flex-col gap-4 pointer-events-auto">
-          
+
           {/* Filières + Matières */}
           <div style={{
             background: 'rgba(255,255,255,0.05)',
@@ -77,6 +76,11 @@ function App() {
 
         </aside>
 
+        {/* --- CITATION FLOTTANTE POMO-31 ---
+            position: fixed bas droite, directement sur le background.
+            Clic → citation aléatoire avec animation fade. */}
+        <QuoteWidget />
+
         {/* --- TIMER CENTRE --- */}
         <main className="relative h-full w-full flex items-center justify-center z-20">
           <DraggableTimer selectedSubject={selectedSubject} />
@@ -87,9 +91,7 @@ function App() {
           <FocusButton />
         </section>
 
-        {/* --- BARRE DE NAVIGATION BASSE ---
-            POMO-30 : BottomBar contient maintenant un tab "Groupe"
-            avec GroupManager. Le changement est dans BottomBar.tsx. */}
+        {/* --- BARRE DE NAVIGATION BASSE --- */}
         <footer className="absolute bottom-0 left-0 right-0 z-50">
           <BottomBar />
         </footer>
