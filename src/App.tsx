@@ -4,13 +4,14 @@ import { BottomBar } from './components/layout/BottomBar'
 import { Logo } from './components/ui/Logo'
 import { DateTimeClock } from './components/DateTimeClock'
 import { FocusModeOverlay } from './components/FocusModeOverlay'
-import { FocusButton } from './components/FocusButton' 
-import { DraggableTimer } from './components/timer/DraggableTimer' 
+import { FocusButton } from './components/FocusButton'
+import { DraggableTimer } from './components/timer/DraggableTimer'
 import { StudyDashboard } from './components/stats/StudyDashboard'
 import { SubjectSelector } from './components/subjects/SubjectSelector'
 import { TasksManager } from './components/tasks/TasksManager'
-import ContributionHeatmap from './components/stats/ContributionHeatmap' // POMO-28
-import QuoteWidget from './components/quotes/QuoteWidget'                 // ← POMO-31
+import ContributionHeatmap from './components/stats/ContributionHeatmap'
+import DailyGoalBar from './components/stats/DailyGoalBar'
+import QuoteWidget from './components/quotes/QuoteWidget'
 
 function App() {
   const [selectedSubject, setSelectedSubject] = useState('Génie Logiciel')
@@ -32,16 +33,33 @@ function App() {
         </header>
 
         {/* --- SIDEBAR GAUCHE --- */}
-        <aside className="absolute top-20 left-6 z-40 w-64 flex flex-col gap-4 pointer-events-auto">
+        <aside style={{
+          position: 'absolute',
+          top: 80,
+          left: 24,
+          bottom: 90,
+          zIndex: 40,
+          width: 280,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          pointerEvents: 'auto',
+          overflowY: 'auto',
+          overflowX: 'hidden',
+          /* Masquer la scrollbar visuellement */
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+        } as React.CSSProperties}>
 
           {/* Filières + Matières */}
           <div style={{
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '14px',
+            borderRadius: 14,
             padding: '12px 14px',
+            flexShrink: 0,
           }}>
-            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>
+            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', margin: '0 0 10px' }}>
               Filière &amp; Matière
             </p>
             <SubjectSelector onSelectSubject={setSelectedSubject} />
@@ -51,10 +69,11 @@ function App() {
           <div style={{
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '14px',
+            borderRadius: 14,
             padding: '12px 14px',
+            flexShrink: 0,
           }}>
-            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>
+            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', margin: '0 0 10px' }}>
               Sessions
             </p>
             <StudyDashboard />
@@ -65,10 +84,11 @@ function App() {
           <div style={{
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
-            borderRadius: '14px',
+            borderRadius: 14,
             padding: '12px 14px',
+            flexShrink: 0,
           }}>
-            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', marginBottom: 10 }}>
+            <p style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(255,255,255,0.4)', margin: '0 0 10px' }}>
               Tâches
             </p>
             <TasksManager currentSubject={selectedSubject} />
@@ -76,20 +96,28 @@ function App() {
 
         </aside>
 
-        {/* --- CITATION FLOTTANTE POMO-31 ---
-            position: fixed bas droite, directement sur le background.
-            Clic → citation aléatoire avec animation fade. */}
+        {/* --- BOUTON LET'S FOCUS — centré en bas, au-dessus de la BottomBar --- */}
+        <div style={{
+          position: 'fixed',
+          bottom: 96,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 50,
+          pointerEvents: 'auto',
+        }}>
+          <FocusButton />
+        </div>
+
+        {/* --- DAILY GOAL BAR — flottante droite --- */}
+        <DailyGoalBar />
+
+        {/* --- CITATION FLOTTANTE — bas droite --- */}
         <QuoteWidget />
 
         {/* --- TIMER CENTRE --- */}
         <main className="relative h-full w-full flex items-center justify-center z-20">
           <DraggableTimer selectedSubject={selectedSubject} />
         </main>
-
-        {/* --- BOUTON FOCUS --- */}
-        <section className="absolute bottom-20 left-6 z-50 pointer-events-auto">
-          <FocusButton />
-        </section>
 
         {/* --- BARRE DE NAVIGATION BASSE --- */}
         <footer className="absolute bottom-0 left-0 right-0 z-50">

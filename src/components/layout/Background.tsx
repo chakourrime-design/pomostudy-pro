@@ -86,7 +86,7 @@ export function Background() {
           boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
         }}
       >
-        🖼️ Background
+        🖼️ 
       </motion.button>
 
       {/* 4. Menu de sélection (S'ouvre vers le haut) */}

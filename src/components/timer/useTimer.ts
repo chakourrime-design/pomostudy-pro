@@ -1,37 +1,54 @@
+
 import { useReducer, useEffect, useRef, useState, useCallback } from 'react'
 import { timerReducer, INITIAL_STATE, phaseDuration } from './timerReducer'
 import { useTimerSound } from '../../hooks/useTimerSound'
 import { sendPhaseEndNotification } from '../../services/notificationService'
 import { isYesterday, isToday, parseISO, format } from 'date-fns'
+import { useSessionStore } from '../../stores/sessionStore' // ← AJOUT
+
 
 export function useTimer(selectedSubject: string) {
   const [state, dispatch] = useReducer(timerReducer, INITIAL_STATE)
-  
-  // 1. État du streak
+
+  // ── SessionStore Zustand ─────────────────────────────────────────
+  const addSession = useSessionStore((s) => s.addSession)
+  // ────────────────────────────────────────────────────────────────
+
   const [streak, setStreak] = useState(() => Number(localStorage.getItem('pomo_streak')) || 0)
-  
+
   const rafRef = useRef<number | null>(null)
   const lastTickRef = useRef<number | null>(null)
   const hasPlayedRef = useRef(false)
   const { playEndSound } = useTimerSound()
 
-  // 2. LOGIQUE : Sauvegarder une session dans l'historique (KPIs)
+  // Sauvegarder session dans ZUSTAND (plus localStorage seul)
   const logSession = useCallback(() => {
-    const history = JSON.parse(localStorage.getItem('study_history') || '[]')
-    const newSession = {
-      id: Date.now(),
-      subject: selectedSubject || 'Autre',
-      duration: 25, // minutes par défaut pour un Pomo
-      date: new Date().toISOString()
-    }
-    localStorage.setItem('study_history', JSON.stringify([...history, newSession]))
-  }, [selectedSubject])
+    const now = new Date().toISOString()
 
-  // 3. LOGIQUE : Mise à jour du Streak journalier
+    // ── Zustand (DailyGoalBar, ContributionHeatmap, StudyDashboard) ──
+    addSession({
+      id: String(Date.now()), // ou uuidv4() si uuid est installé
+      subject: selectedSubject || 'Autre',
+      duration: 25,
+      date: now,
+      subjectId: '',
+      pomosCompleted: 0,
+      tasks: []
+    })
+
+    // ── localStorage conservé pour rétrocompatibilité (StudyDashboard ancien) ──
+    const history = JSON.parse(localStorage.getItem('study_history') || '[]')
+    localStorage.setItem('study_history', JSON.stringify([
+      ...history,
+      { id: Date.now(), subject: selectedSubject || 'Autre', duration: 25, date: now }
+    ]))
+  }, [selectedSubject, addSession])
+
+  // Streak inchangé
   const updateStreak = useCallback(() => {
     const lastDateStr = localStorage.getItem('last_pomo_date')
     const todayStr = format(new Date(), 'yyyy-MM-dd')
-    
+
     if (!lastDateStr) {
       setStreak(1)
       localStorage.setItem('pomo_streak', '1')
@@ -50,16 +67,15 @@ export function useTimer(selectedSubject: string) {
     localStorage.setItem('last_pomo_date', todayStr)
   }, [])
 
-  // 4. Calculs de temps
   const total = phaseDuration(state)
   const remaining = Math.max(0, total - state.elapsed)
   const progress = total > 0 ? state.elapsed / total : 0
 
-  // 5. Boucle d'animation (Tick)
+  // Boucle animation
   useEffect(() => {
-    const isRunning = 
-      state.phase === 'WORK' || 
-      state.phase === 'SHORT_BREAK' || 
+    const isRunning =
+      state.phase === 'WORK' ||
+      state.phase === 'SHORT_BREAK' ||
       state.phase === 'LONG_BREAK'
 
     if (!isRunning) {
@@ -83,23 +99,22 @@ export function useTimer(selectedSubject: string) {
     }
   }, [state.phase])
 
-  // 6. Gestion de la fin de cycle (Streak + Logging des Sessions)
+  // Fin de cycle
   useEffect(() => {
-    const isPhaseRunning = 
-      state.phase === 'WORK' || 
-      state.phase === 'SHORT_BREAK' || 
+    const isPhaseRunning =
+      state.phase === 'WORK' ||
+      state.phase === 'SHORT_BREAK' ||
       state.phase === 'LONG_BREAK'
-    
+
     if (isPhaseRunning && remaining <= 0 && !hasPlayedRef.current) {
       hasPlayedRef.current = true
       playEndSound()
       sendPhaseEndNotification(state.phase)
 
       if (state.phase === 'WORK') {
-        // setTimeout pour éviter les erreurs de "cascading renders"
         setTimeout(() => {
           updateStreak()
-          logSession() // ✅ On enregistre la session pour les KPIs de la tâche 26
+          logSession()
         }, 0)
       }
     }
@@ -109,21 +124,19 @@ export function useTimer(selectedSubject: string) {
     }
   }, [remaining, state.phase, playEndSound, updateStreak, logSession])
 
-  // 7. Formatage affichage
   const minutes = Math.floor(remaining / 60).toString().padStart(2, '0')
   const seconds = Math.floor(remaining % 60).toString().padStart(2, '0')
 
-  // Log discret pour valider selectedSubject
   useEffect(() => {
     if (selectedSubject) console.debug(`Target: ${selectedSubject}`)
   }, [selectedSubject])
 
-  return { 
-    state, 
-    dispatch, 
-    remaining, 
-    progress, 
-    streak, 
-    timeDisplay: `${minutes}:${seconds}` 
+  return {
+    state,
+    dispatch,
+    remaining,
+    progress,
+    streak,
+    timeDisplay: `${minutes}:${seconds}`,
   }
 }
