@@ -9,6 +9,7 @@ import { DraggableTimer } from './components/timer/DraggableTimer'
 import { StudyDashboard } from './components/stats/StudyDashboard'
 import { SubjectSelector } from './components/subjects/SubjectSelector'
 import { TasksManager } from './components/tasks/TasksManager'
+import ContributionHeatmap from './components/stats/ContributionHeatmap' // ← POMO-28
 
 function App() {
   const [selectedSubject, setSelectedSubject] = useState('Génie Logiciel')
@@ -29,8 +30,7 @@ function App() {
           </div>
         </header>
 
-        {/* --- SIDEBAR GAUCHE UNIQUE --- */}
-        {/* top-20 = espace sous le header/logo, w-64 = largeur fixe 256px */}
+        {/* --- SIDEBAR GAUCHE --- */}
         <aside className="absolute top-20 left-6 z-40 w-64 flex flex-col gap-4 pointer-events-auto">
           
           {/* Filières + Matières */}
@@ -46,7 +46,7 @@ function App() {
             <SubjectSelector onSelectSubject={setSelectedSubject} />
           </div>
 
-          {/* Stats */}
+          {/* Sessions + Heatmap ← POMO-28 */}
           <div style={{
             background: 'rgba(255,255,255,0.05)',
             border: '1px solid rgba(255,255,255,0.1)',
@@ -57,6 +57,8 @@ function App() {
               Sessions
             </p>
             <StudyDashboard />
+            {/* ↓ POMO-28 : grille d'activité 90 jours */}
+            <ContributionHeatmap />
           </div>
 
           {/* Tâches */}
@@ -79,7 +81,7 @@ function App() {
           <DraggableTimer selectedSubject={selectedSubject} />
         </main>
 
-        {/* --- BOUTON FOCUS (Bas Gauche) --- */}
+        {/* --- BOUTON FOCUS --- */}
         <section className="absolute bottom-20 left-6 z-50 pointer-events-auto">
           <FocusButton />
         </section>
