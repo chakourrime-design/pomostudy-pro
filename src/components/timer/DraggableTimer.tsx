@@ -4,7 +4,8 @@ import { PhaseControls } from './PhaseControls'
 import { useTimer } from './useTimer'
 import MoodWindow from '../mood/MoodWindow'
 import { useMoodStore } from '../../stores/moodStore'
-
+import { motion } from 'framer-motion'
+import { PhaseTransition } from './PhaseTransition'
 type Mood = 'great' | 'good' | 'meh' | 'bad'
 
 interface DraggableTimerProps {
@@ -61,14 +62,18 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
     dispatch({ type: 'START' })
   }
 
-  return (
-    <>
-      {showMoodWindow && (
-        <MoodWindow
-          onSelect={handleMoodSelect}
-          onClose={() => setShowMoodWindow(false)}
-        />
-      )}
+ // Dans le return, remplacez le div principal par :
+return (
+  <>
+    {showMoodWindow && (
+      <MoodWindow
+        onSelect={handleMoodSelect}
+        onClose={() => setShowMoodWindow(false)}
+      />
+    )}
+
+    {/* ✅ Fond animé selon la phase */}
+    <PhaseTransition phase={state.phase}>
 
       <div
         onMouseMove={onMouseMove}
@@ -79,8 +84,20 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
           pointerEvents: 'none', zIndex: 50
         }}
       >
-        <div
+        <motion.div
           onMouseDown={onMouseDown}
+          // ✅ Animation d'entrée + changement de phase
+          animate={{
+            scale: state.phase === 'WORK' ? 1.02 : 1,
+            boxShadow: state.phase === 'WORK'
+              ? '0 0 60px rgba(239,68,68,0.2)'
+              : state.phase === 'SHORT_BREAK'
+              ? '0 0 60px rgba(34,197,94,0.2)'
+              : state.phase === 'LONG_BREAK'
+              ? '0 0 60px rgba(59,130,246,0.2)'
+              : '0 10px 30px rgba(0,0,0,0.1)'
+          }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
           style={{
             position: 'absolute',
             left: position.x,
@@ -97,43 +114,64 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             borderRadius: 60,
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: activeDrag
-              ? '0 40px 80px rgba(0,0,0,0.4)'
-              : '0 10px 30px rgba(0,0,0,0.1)',
-            transition: 'box-shadow 0.3s ease, transform 0.2s ease',
+            border: state.phase === 'WORK'
+              ? '1px solid rgba(239,68,68,0.2)'
+              : state.phase === 'SHORT_BREAK'
+              ? '1px solid rgba(34,197,94,0.2)'
+              : state.phase === 'LONG_BREAK'
+              ? '1px solid rgba(59,130,246,0.2)'
+              : '1px solid rgba(255,255,255,0.1)',
             transform: activeDrag ? 'scale(1.02)' : 'scale(1)',
+            transition: 'border 0.5s ease'
           }}
         >
-          {/* Barre de drag */}
+          {/* Barre drag */}
           <div style={{
             width: 36, height: 4, borderRadius: 2,
-            background: 'rgba(255,255,255,0.15)',
-            marginBottom: -8
+            background: 'rgba(255,255,255,0.15)', marginBottom: -8
           }} />
 
-          {/* Timer SVG */}
-          <PomoTimer
-            progress={progress}
-            timeDisplay={timeDisplay}
-            phase={state.phase}
-            size={240}
-          />
+          {/* ✅ Timer avec animation pulse en WORK */}
+          <motion.div
+            animate={state.phase === 'WORK'
+              ? { scale: [1, 1.01, 1] }
+              : { scale: 1 }
+            }
+            transition={{
+              repeat: state.phase === 'WORK' ? Infinity : 0,
+              duration: 2, ease: 'easeInOut'
+            }}
+          >
+            <PomoTimer
+              progress={progress}
+              timeDisplay={timeDisplay}
+              phase={state.phase}
+              size={240}
+            />
+          </motion.div>
 
-          {/* Dots pomodoros */}
+          {/* Dots pomodoros avec animation */}
           <div style={{ display: 'flex', gap: 8 }}>
             {Array.from({ length: state.config.pomosBeforeLongBreak }).map((_, i) => (
-              <div key={i} style={{
-                width: 8, height: 8, borderRadius: '50%',
-                background: i < state.pomosCompleted % state.config.pomosBeforeLongBreak
-                  ? '#EF4444'
-                  : 'rgba(255,255,255,0.2)',
-                transition: 'background 0.3s'
-              }} />
+              <motion.div
+                key={i}
+                animate={{
+                  scale: i === state.pomosCompleted % state.config.pomosBeforeLongBreak
+                    ? [1, 1.3, 1]
+                    : 1,
+                  background: i < state.pomosCompleted % state.config.pomosBeforeLongBreak
+                    ? '#EF4444'
+                    : 'rgba(255,255,255,0.2)'
+                }}
+                transition={{ duration: 0.4 }}
+                style={{
+                  width: 8, height: 8, borderRadius: '50%'
+                }}
+              />
             ))}
           </div>
 
-          {/* ✅ PhaseControls avec workDuration pour les boutons de durée */}
+          {/* PhaseControls */}
           <div onMouseDown={e => e.stopPropagation()}>
             <PhaseControls
               phase={state.phase}
@@ -143,26 +181,30 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
             />
           </div>
 
-          {/* Info matière + mood */}
+          {/* Info matière */}
           {selectedSubject && (
-            <div style={{
-              fontSize: 11, opacity: 0.4,
-              fontWeight: 600, textTransform: 'uppercase',
-              letterSpacing: '0.05em', color: '#fff'
-            }}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.4 }}
+              style={{
+                fontSize: 11, fontWeight: 600,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em', color: '#fff'
+              }}
+            >
               Focus : {selectedSubject}
               {currentMood && (
                 <span style={{ marginLeft: 8 }}>
                   {currentMood === 'great' ? '😄'
                     : currentMood === 'good' ? '🙂'
-                    : currentMood === 'meh' ? '😐'
-                    : '😞'}
+                    : currentMood === 'meh' ? '😐' : '😞'}
                 </span>
               )}
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       </div>
-    </>
-  )
-}
+
+    </PhaseTransition>
+  </>
+)}
