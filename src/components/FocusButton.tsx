@@ -1,52 +1,159 @@
 import { useState, useEffect } from 'react'
-import { fullscreenManager } from '../utils/fullscreenManager'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export function FocusButton() {
-  const [isFull, setIsFull] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
+  // ✅ Détecter si on sort du plein écran manuellement (touche Échap)
   useEffect(() => {
-    const handler = () => setIsFull(!!document.fullscreenElement)
-    document.addEventListener('fullscreenchange', handler)
-    return () => document.removeEventListener('fullscreenchange', handler)
+    function onFullscreenChange() {
+      if (!document.fullscreenElement) {
+        setIsFullscreen(false)
+        setIsFocused(false)
+      }
+    }
+    document.addEventListener('fullscreenchange', onFullscreenChange)
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange)
   }, [])
 
+  async function handleFocus() {
+    if (!isFocused) {
+      // ✅ Activer plein écran
+      try {
+        await document.documentElement.requestFullscreen()
+        setIsFullscreen(true)
+      } catch {
+        console.log('Fullscreen non supporté')
+      }
+
+      setIsFocused(true)
+
+      // ✅ Bloquer touches de navigation (Alt+Tab etc.)
+      window.addEventListener('keydown', blockKeys)
+
+    } else {
+      // Désactiver
+      if (document.fullscreenElement) {
+        await document.exitFullscreen()
+      }
+      setIsFullscreen(false)
+      setIsFocused(false)
+      window.removeEventListener('keydown', blockKeys)
+    }
+  }
+
+  function blockKeys(e: KeyboardEvent) {
+    // Bloquer Alt+Tab, Alt+F4, Windows key
+    if (
+      (e.altKey && e.key === 'Tab') ||
+      (e.altKey && e.key === 'F4') ||
+      e.key === 'Meta' ||
+      (e.ctrlKey && e.key === 'w')
+    ) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+  }
+
   return (
-    <button
-      className="focus-btn"
-      onClick={() => fullscreenManager.toggle()}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: '10px 22px',
-        borderRadius: '24px',
-        border: '1px solid rgba(255, 255, 255, 0.2)',
-        // Dégradé inspiré de WonderSpace (un peu corail/rouge doux)
-        background: isFull 
-          ? 'rgba(255, 255, 255, 0.1)' 
-          : 'linear-gradient(135deg, rgba(255, 107, 107, 0.8), rgba(238, 82, 83, 0.8))',
-        backdropFilter: 'blur(10px)',
-        color: '#ffffff',
-        fontSize: '14px',
-        fontWeight: 600,
-        cursor: 'pointer',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        boxShadow: isFull 
-          ? 'none' 
-          : '0 4px 15px rgba(238, 82, 83, 0.3)',
-        outline: 'none',
-        userSelect: 'none'
-      }}
-      // Effet de scale au survol via JS pour rester dans le style inline
-      onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-      onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-    >
-      <span style={{ fontSize: '18px' }}>
-        {isFull ? '✕' : '🎯'}
-      </span>
-      <span style={{ letterSpacing: '0.02em' }}>
-        {isFull ? 'Quitter le focus' : "Let's Focus"}
-      </span>
-    </button>
+    <>
+      {/* Bouton Let's Focus */}
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        whileHover={{ scale: 1.05 }}
+        onClick={handleFocus}
+        animate={{
+          background: isFocused
+            ? 'linear-gradient(135deg, #DC2626, #991B1B)'
+            : 'linear-gradient(135deg, #EF4444, #DC2626)',
+          boxShadow: isFocused
+            ? '0 0 40px rgba(239,68,68,0.6)'
+            : '0 0 24px rgba(239,68,68,0.35)'
+        }}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '12px 28px',
+          borderRadius: 999, border: 'none',
+          color: '#fff', cursor: 'pointer',
+          fontSize: 14, fontWeight: 700,
+          letterSpacing: '0.03em',
+        }}
+      >
+        {/* Icône animée */}
+        <motion.span
+          animate={{ rotate: isFocused ? 360 : 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ fontSize: 16 }}
+        >
+          {isFocused ? '🔓' : '🎯'}
+        </motion.span>
+        {isFocused ? 'Quitter le focus' : "Let's Focus"}
+
+        {/* Indicateur plein écran */}
+        {isFullscreen && (
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: '#22C55E',
+              boxShadow: '0 0 8px rgba(34,197,94,0.8)'
+            }}
+          />
+        )}
+      </motion.button>
+
+      {/* ✅ Overlay mode focus — cache tout sauf le timer */}
+      <AnimatePresence>
+        {isFocused && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            style={{
+              position: 'fixed', inset: 0,
+              zIndex: 30,
+              pointerEvents: 'none'
+            }}
+          >
+            {/* Masque les éléments UI */}
+            <style>{`
+              aside, footer, header > div:last-child,
+              .daily-goal, .quote-widget {
+                opacity: 0 !important;
+                pointer-events: none !important;
+                transition: opacity 0.3s !important;
+              }
+            `}</style>
+
+            {/* Message en bas */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              style={{
+                position: 'fixed',
+                bottom: 30, left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'rgba(0,0,0,0.6)',
+                backdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: 999,
+                padding: '8px 20px',
+                color: 'rgba(255,255,255,0.5)',
+                fontSize: 11,
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none'
+              }}
+            >
+              🎯 Mode Focus activé — Appuie sur Échap pour quitter
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   )
 }
