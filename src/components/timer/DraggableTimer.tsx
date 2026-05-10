@@ -2,30 +2,30 @@ import { useState, useRef } from 'react'
 import { PomoTimer } from './PomoTimer'
 import { PhaseControls } from './PhaseControls'
 import { useTimer } from './useTimer'
-import MoodWindow from '../mood/MoodWindow'       // ← POMO-29
-import { useMoodStore } from '../../stores/moodStore' // ← POMO-29
- type Mood = 'great' | 'good' | 'meh' | 'bad'            // ← POMO-29
+import MoodWindow from '../mood/MoodWindow'
+import { useMoodStore } from '../../stores/moodStore'
+
+type Mood = 'great' | 'good' | 'meh' | 'bad'
 
 interface DraggableTimerProps {
-  selectedSubject: string;
+  selectedSubject: string
 }
 
 export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
   const { state, dispatch, progress, timeDisplay } = useTimer(selectedSubject)
-
-  // ── POMO-29 : Mood ──────────────────────────────────────────────
-  const { currentMood, setMood, clearMood } = useMoodStore()
+  const { currentMood, setMood } = useMoodStore()
   const [showMoodWindow, setShowMoodWindow] = useState(false)
-  // ────────────────────────────────────────────────────────────────
 
-  const [position, setPosition] = useState({ x: window.innerWidth / 2 - 150, y: 80 })
-  const [isHovered, setIsHovered] = useState(false)
+  const [position, setPosition] = useState({
+    x: window.innerWidth / 2 - 160,
+    y: window.innerHeight / 2 - 200
+  })
   const [activeDrag, setActiveDrag] = useState(false)
-
   const isDragging = useRef(false)
   const offset = useRef({ x: 0, y: 0 })
 
   function onMouseDown(e: React.MouseEvent) {
+    if ((e.target as HTMLElement).closest('button')) return
     isDragging.current = true
     setActiveDrag(true)
     offset.current = {
@@ -47,14 +47,11 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
     setActiveDrag(false)
   }
 
-  // ── POMO-29 : intercepte le START pour demander le mood ─────────
   function handleStart() {
     if (!currentMood) {
-      // Pas encore de mood → ouvre la modal avant de démarrer
       setShowMoodWindow(true)
       return
     }
-    // Mood déjà défini → démarre directement
     dispatch({ type: 'START' })
   }
 
@@ -64,17 +61,8 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
     dispatch({ type: 'START' })
   }
 
-  // Appeler clearMood() quand la session se termine
-  // (à brancher sur ton event de fin de session dans useTimer si besoin)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function handleSessionEnd() {
-    clearMood()
-  }
-  // ────────────────────────────────────────────────────────────────
-
   return (
     <>
-      {/* ── POMO-29 : Modal mood — rendue EN DEHORS du drag wrapper ── */}
       {showMoodWindow && (
         <MoodWindow
           onSelect={handleMoodSelect}
@@ -87,16 +75,12 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
         onMouseUp={onMouseUp}
         onMouseLeave={onMouseUp}
         style={{
-          position: 'fixed',
-          inset: 0,
-          pointerEvents: 'none',
-          zIndex: 50
+          position: 'fixed', inset: 0,
+          pointerEvents: 'none', zIndex: 50
         }}
       >
         <div
           onMouseDown={onMouseDown}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
           style={{
             position: 'absolute',
             left: position.x,
@@ -106,74 +90,77 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 24,
+            gap: 16,
             userSelect: 'none',
-            padding: '32px 24px',
-            backgroundColor: 'rgba(255, 255, 255, 0.12)',
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)',
-            borderRadius: '48px',
-            border: '1px solid rgba(255, 255, 255, 0.25)',
+            padding: '24px 20px',
+            backgroundColor: 'rgba(255,255,255,0.03)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderRadius: 60,
+            border: '1px solid rgba(255,255,255,0.1)',
             boxShadow: activeDrag
-              ? '0 20px 40px rgba(0,0,0,0.2)'
-              : '0 10px 25px rgba(0,0,0,0.1)',
-            transition: 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease',
-            transform: activeDrag ? 'scale(1.03)' : (isHovered ? 'scale(1.01)' : 'scale(1)'),
+              ? '0 40px 80px rgba(0,0,0,0.4)'
+              : '0 10px 30px rgba(0,0,0,0.1)',
+            transition: 'box-shadow 0.3s ease, transform 0.2s ease',
+            transform: activeDrag ? 'scale(1.02)' : 'scale(1)',
           }}
         >
-          {/* Cercle + temps */}
+          {/* Barre de drag */}
+          <div style={{
+            width: 36, height: 4, borderRadius: 2,
+            background: 'rgba(255,255,255,0.15)',
+            marginBottom: -8
+          }} />
+
+          {/* Timer SVG */}
           <PomoTimer
             progress={progress}
             timeDisplay={timeDisplay}
             phase={state.phase}
-            size={220}
+            size={240}
           />
 
-          {/* ── POMO-29 : on passe handleStart à PhaseControls ─────── */}
-          {/* Si PhaseControls accepte un prop onStart, utilise-le.     */}
-          {/* Sinon, voir option B ci-dessous.                           */}
-          <div
-            onMouseDown={e => e.stopPropagation()}
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.08)',
-              borderRadius: '24px',
-              padding: '4px',
-              border: '1px solid rgba(255, 255, 255, 0.1)'
-            }}
-          >
-            {/*
-              OPTION A — si PhaseControls accepte un prop onStart :
-              <PhaseControls phase={state.phase} dispatch={dispatch} onStart={handleStart} />
+          {/* Dots pomodoros */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            {Array.from({ length: state.config.pomosBeforeLongBreak }).map((_, i) => (
+              <div key={i} style={{
+                width: 8, height: 8, borderRadius: '50%',
+                background: i < state.pomosCompleted % state.config.pomosBeforeLongBreak
+                  ? '#EF4444'
+                  : 'rgba(255,255,255,0.2)',
+                transition: 'background 0.3s'
+              }} />
+            ))}
+          </div>
 
-              OPTION B — si PhaseControls n'a pas de prop onStart,
-              enveloppe le bouton Démarrer dans un intercepteur :
-            */}
-            <div onClick={(e) => {
-              // Intercepte le clic sur le bouton Démarrer uniquement
-              const target = e.target as HTMLElement
-              const isStartBtn = target.closest('[data-action="start"]')
-              if (isStartBtn) {
-                e.stopPropagation()
-                handleStart()
-              }
+          {/* ✅ PhaseControls avec workDuration pour les boutons de durée */}
+          <div onMouseDown={e => e.stopPropagation()}>
+            <PhaseControls
+              phase={state.phase}
+              dispatch={dispatch}
+              onStart={handleStart}
+              workDuration={state.config.workDuration}
+            />
+          </div>
+
+          {/* Info matière + mood */}
+          {selectedSubject && (
+            <div style={{
+              fontSize: 11, opacity: 0.4,
+              fontWeight: 600, textTransform: 'uppercase',
+              letterSpacing: '0.05em', color: '#fff'
             }}>
-              <PhaseControls phase={state.phase} dispatch={dispatch} />
+              Focus : {selectedSubject}
+              {currentMood && (
+                <span style={{ marginLeft: 8 }}>
+                  {currentMood === 'great' ? '😄'
+                    : currentMood === 'good' ? '🙂'
+                    : currentMood === 'meh' ? '😐'
+                    : '😞'}
+                </span>
+              )}
             </div>
-          </div>
-
-          {/* Matière active + mood actuel */}
-          <div style={{ fontSize: '12px', opacity: 0.5, marginTop: -10, textAlign: 'center' }}>
-            Focus : {selectedSubject}
-            {/* ── POMO-29 : affiche le mood sélectionné ── */}
-            {currentMood && (
-              <span style={{ marginLeft: 8 }}>
-                {currentMood === 'great' ? '😄'
-                  : currentMood === 'good' ? '🙂'
-                  : currentMood === 'meh' ? '😐'
-                  : '😞'}
-              </span>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </>

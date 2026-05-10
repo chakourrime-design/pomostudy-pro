@@ -14,6 +14,7 @@ export type TimerAction =
   | { type: 'TICK'; payload: { elapsed: number } }
   | { type: 'PHASE_COMPLETE' }
   | { type: 'SET_CONFIG'; payload: TimerConfig }
+| { type: 'SET_WORK_DURATION'; payload: number }  // payload en minutes
 
 export type TimerConfig = {
   workDuration: number        // en secondes, défaut 1500 (25 min)

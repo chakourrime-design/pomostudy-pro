@@ -13,7 +13,16 @@ export interface BgOption {
 const BACKGROUNDS: BgOption[] = [
   { id: 'ensab1', src: '/backgrounds/background1.jfif', label: 'Nature' },
   { id: 'ensab2', src: '/backgrounds/background2.jfif', label: 'Pets' },
-  { id: 'ensab3', src: '/backgrounds/background3.jfif', label: 'Anime' },
+  { id: 'ensab3', src: '/backgrounds/background3.jfif', label: '' },
+  { id: 'ensab3', src: '/backgrounds/background4.jpeg', label: '' },
+  { id: 'ensab3', src: '/backgrounds/background5.jpeg', label: '' },
+  { id: 'ensab3', src: '/backgrounds/background6.jpeg', label: '' },
+  { id: 'ensab3', src: '/backgrounds/background7.jpeg', label: '' },
+  { id: 'ensab3', src: '/backgrounds/background8.jpeg', label: '' },
+  { id: 'ensab3', src: '/backgrounds/background9.jpeg', label: '' },
+  { id: 'ensab3', src: '/backgrounds/videoframe_8725.png', label: '' },
+  { id: 'ensab3', src: '/backgrounds/videoframe_13766.png', label: '' },
+  
 ]
 
 const SOLID_COLORS: BgOption[] = [

@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ThemeTab } from '../themes/ThemeTab'
 import { MusicPlayer } from '../music/MusicPlayer'
-import GroupSession from '.././groups/GroupSession' // ← POMO-30
+import GroupSession from '../groups/GroupSession'
+import { StudyDashboard } from '../stats/StudyDashboard'
+import ContributionHeatmap from '../stats/ContributionHeatmap'
+import { SessionHistory } from '../history/SessionHistory'
 
 type Tab = 'themes' | 'stats' | 'music' | 'playlist' | 'groups'
 
@@ -20,18 +23,15 @@ export function BottomBar() {
   return (
     <div style={{
       position: 'fixed',
-      bottom: 30,
-      left: '50%',
+      bottom: 30, left: '50%',
       transform: 'translateX(-50%)',
       zIndex: 1000,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: 15,
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', gap: 15,
       pointerEvents: 'none'
     }}>
 
-      {/* Fenêtre de l'onglet actif */}
+      {/* Panneau contenu */}
       <AnimatePresence>
         {activeTab && (
           <motion.div
@@ -41,73 +41,106 @@ export function BottomBar() {
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             style={{
               pointerEvents: 'all',
-              background: 'rgba(15, 15, 15, 0.7)',
-              backdropFilter: 'blur(30px)',
-              WebkitBackdropFilter: 'blur(30px)',
+              background: 'rgba(15,15,15,0.75)',
+              backdropFilter: 'blur(40px)',
+              WebkitBackdropFilter: 'blur(40px)',
               borderRadius: 32,
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              padding: '20px',
-              // groups est plus compact, les autres gardent 380px
-              width: activeTab === 'groups' ? 340 : 380,
-              boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              padding: 24,
+              width: activeTab === 'groups' ? 340 : 420,
+              maxHeight: '60vh',
+              overflowY: 'auto',
+              boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
             }}
           >
-            {activeTab === 'themes'   && <ThemeTab />}
-            {activeTab === 'stats'    && (
-              <div style={{ padding: 20, color: '#fff', textAlign: 'center' }}>
-                <h3 style={{ margin: 0 }}>Statistiques</h3>
-                <p style={{ opacity: 0.6, fontSize: 13 }}>Sprint 3 en cours...</p>
+            {activeTab === 'themes' && <ThemeTab />}
+
+            {/* ✅ Stats — vrai dashboard */}
+            {activeTab === 'stats' && (
+              <div style={{ color: '#fff' }}>
+                <h3 style={{
+                  textAlign: 'center', marginBottom: 20,
+                  fontSize: 18, fontWeight: 800
+                }}>
+                  📊 Statistiques
+                </h3>
+                <StudyDashboard />
+                <div style={{ marginTop: 16 }}>
+                  <ContributionHeatmap />
+                </div>
+                <div style={{ marginTop: 16 }}>
+                  <p style={{
+                    fontSize: 10, textTransform: 'uppercase',
+                    letterSpacing: '0.1em',
+                    color: 'rgba(255,255,255,0.35)',
+                    marginBottom: 10
+                  }}>
+                    Historique
+                  </p>
+                  <SessionHistory />
+                </div>
               </div>
             )}
-            {activeTab === 'music'    && <MusicPlayer />}
+
+            {activeTab === 'music' && <MusicPlayer />}
+
             {activeTab === 'playlist' && (
-              <div style={{ padding: 20, color: '#fff', textAlign: 'center' }}>Playlist Active</div>
+              <div style={{
+                padding: 20, color: '#fff',
+                textAlign: 'center'
+              }}>
+                <p style={{ fontSize: 32, marginBottom: 8 }}>🎧</p>
+                <h3 style={{ margin: 0, marginBottom: 8 }}>Mes Playlists</h3>
+                <p style={{
+                  fontSize: 12, color: 'rgba(255,255,255,0.4)'
+                }}>
+                  Bientôt disponible
+                </p>
+              </div>
             )}
-            {/* ← POMO-30 : QR code + lien de session */}
-            {activeTab === 'groups'   && <GroupSession />}
+
+            {activeTab === 'groups' && <GroupSession />}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Barre de navigation style Pilule */}
+      {/* Barre navigation pilule */}
       <div style={{
         pointerEvents: 'all',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 6,
-        background: 'rgba(255, 255, 255, 0.08)',
+        display: 'flex', alignItems: 'center', gap: 6,
+        background: 'rgba(255,255,255,0.08)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         borderRadius: 40,
-        border: '1px solid rgba(255, 255, 255, 0.15)',
-        padding: '6px',
+        border: '1px solid rgba(255,255,255,0.15)',
+        padding: 6,
         boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
       }}>
         {TABS.map(tab => (
           <motion.button
             key={tab.id}
-            whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+            whileHover={{ backgroundColor: 'rgba(255,255,255,0.12)' }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => setActiveTab(activeTab === tab.id ? null : tab.id)}
+            onClick={() => setActiveTab(
+              activeTab === tab.id ? null : tab.id
+            )}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.15)' : 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '10px 20px',
-              borderRadius: 30,
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: activeTab === tab.id
+                ? 'rgba(255,255,255,0.18)'
+                : 'transparent',
+              border: 'none', cursor: 'pointer',
+              padding: '10px 22px', borderRadius: 30,
               transition: 'all 0.2s ease',
-              color: '#fff'
+              color: '#fff', outline: 'none'
             }}
           >
             <span style={{ fontSize: 20 }}>{tab.icon}</span>
             {activeTab === tab.id && (
               <motion.span
-                initial={{ opacity: 0, x: -5 }}
+                initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
-                style={{ fontSize: 13, fontWeight: 600 }}
+                style={{ fontSize: 13, fontWeight: 700 }}
               >
                 {tab.label}
               </motion.span>

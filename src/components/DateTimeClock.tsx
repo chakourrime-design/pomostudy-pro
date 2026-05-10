@@ -9,36 +9,36 @@ export function DateTimeClock() {
       style={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-end', // Aligné à droite pour le header
+        alignItems: 'flex-end',
         color: '#ffffff',
         fontFamily: "'Inter', sans-serif",
         userSelect: 'none',
-        textShadow: '0 2px 10px rgba(0,0,0,0.4)',
       }}
     >
-      {/* L'Heure : plus grande et bien visible */}
+      {/* L'Heure : formatée pour être compacte et moderne */}
       <span 
         className="clock-time"
         style={{
-          fontSize: '24px',
-          fontWeight: 600,
-          letterSpacing: '-0.02em',
+          fontSize: '22px', // Légèrement réduit pour l'équilibre du header
+          fontWeight: 800, // Plus gras pour le style "Admin"
+          letterSpacing: '-0.04em',
           lineHeight: '1',
+          fontFamily: 'monospace', // Pour éviter que les chiffres ne sautent
         }}
       >
         {time}
       </span>
 
-      {/* La Date : plus petite et élégante */}
+      {/* La Date : Formatée exactement comme sur votre dessin (Photo 1) */}
       <span 
         className="clock-date"
         style={{
-          fontSize: '12px',
-          fontWeight: 400,
+          fontSize: '10px',
+          fontWeight: 700,
           textTransform: 'uppercase',
-          letterSpacing: '0.1em',
-          opacity: 0.8,
-          marginTop: '4px'
+          letterSpacing: '0.12em',
+          opacity: 0.6,
+          marginTop: '2px'
         }}
       >
         {date}
