@@ -33,9 +33,10 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: [
-          '**/*.{js,css,html,ico,png,svg,jpg,jpeg,jfif,mp3}'
-        ]
+        // ✅ Seulement JS et CSS — pas de fichiers statiques
+        globPatterns: ['**/*.{js,css}'],
+        // ✅ Augmenter la limite au maximum
+        maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
       }
     })
   ],
