@@ -3,7 +3,11 @@
     "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "strict": true,
-    "noUncheckedIndexedAccess": false,
+    "noUncheckedIndexedAccess": true,        // ← était false, passer à true
+    "noImplicitReturns": true,               // ← AJOUTER
+    "noFallthroughCasesInSwitch": true,      // ← AJOUTER
+    "useUnknownInCatchVariables": true,       // ← AJOUTER
+    "exactOptionalPropertyTypes": false,      // ← laisser false (trop strict pour Zustand)
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
     "module": "ESNext",

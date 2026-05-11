@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-type Mood = 'great' | 'good' | 'meh' | 'bad'
+import type { Mood } from '../components/types'
 
 interface MoodState {
   currentMood: Mood | null

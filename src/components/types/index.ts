@@ -69,13 +69,8 @@ export type Subject = {
 }
 
 // ─── Mood ────────────────────────────────────────────────
-export type Mood =
-  | 'focused'
-  | 'tired'
-  | 'motivated'
-  | 'stressed'
-  | 'happy'
-  | 'neutral'
+// ─── Mood ────────────────────────────────────────────────
+export type Mood = 'great' | 'good' | 'meh' | 'bad'
 
 // ─── Thèmes ──────────────────────────────────────────────
 export type ThemeType = 'static' | 'live'
