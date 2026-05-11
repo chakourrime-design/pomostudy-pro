@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { PomoTimer } from './PomoTimer'
 import { PhaseControls } from './PhaseControls'
 import { useTimer } from './useTimer'
+import { PhaseTransition } from './PhaseTransition'
 import MoodWindow from '../mood/MoodWindow'
 import { useMoodStore } from '../../stores/moodStore'
-import { motion } from 'framer-motion'
-import { PhaseTransition } from './PhaseTransition'
+
 type Mood = 'great' | 'good' | 'meh' | 'bad'
 
 interface DraggableTimerProps {
@@ -18,14 +19,15 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
   const [showMoodWindow, setShowMoodWindow] = useState(false)
 
   const [position, setPosition] = useState({
-    x: window.innerWidth / 2 - 160,
-    y: window.innerHeight / 2 - 200
+    x: window.innerWidth / 2 - 175,
+    y: window.innerHeight / 2 - 230
   })
   const [activeDrag, setActiveDrag] = useState(false)
   const isDragging = useRef(false)
   const offset = useRef({ x: 0, y: 0 })
 
-  function onMouseDown(e: React.MouseEvent) {
+  // ── Drag handlers ──────────────────────────────────────────────
+  function onMouseDown(e: React.MouseEvent<HTMLDivElement>) {
     if ((e.target as HTMLElement).closest('button')) return
     isDragging.current = true
     setActiveDrag(true)
@@ -35,7 +37,7 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
     }
   }
 
-  function onMouseMove(e: React.MouseEvent) {
+  function onMouseMove(e: React.MouseEvent<HTMLDivElement>) {
     if (!isDragging.current) return
     setPosition({
       x: e.clientX - offset.current.x,
@@ -48,7 +50,9 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
     setActiveDrag(false)
   }
 
+  // ── Timer handlers ─────────────────────────────────────────────
   function handleStart() {
+    // ✅ Fix : si pas de mood → ouvrir MoodWindow
     if (!currentMood) {
       setShowMoodWindow(true)
       return
@@ -59,152 +63,187 @@ export function DraggableTimer({ selectedSubject }: DraggableTimerProps) {
   function handleMoodSelect(mood: Mood) {
     setMood(mood)
     setShowMoodWindow(false)
-    dispatch({ type: 'START' })
+    // ✅ Démarrer après sélection du mood
+    setTimeout(() => dispatch({ type: 'START' }), 50)
   }
 
- // Dans le return, remplacez le div principal par :
-return (
-  <>
-    {showMoodWindow && (
-      <MoodWindow
-        onSelect={handleMoodSelect}
-        onClose={() => setShowMoodWindow(false)}
-      />
-    )}
+  function handleMoodClose() {
+    setShowMoodWindow(false)
+    // ✅ Passer sans mood → démarrer quand même
+    setTimeout(() => dispatch({ type: 'START' }), 50)
+  }
 
-    {/* ✅ Fond animé selon la phase */}
-    <PhaseTransition phase={state.phase}>
+  // ── Styles dynamiques selon phase ──────────────────────────────
+  const borderColor = {
+    IDLE:        'rgba(255,255,255,0.1)',
+    WORK:        'rgba(239,68,68,0.3)',
+    SHORT_BREAK: 'rgba(34,197,94,0.3)',
+    LONG_BREAK:  'rgba(59,130,246,0.3)',
+    PAUSED:      'rgba(245,158,11,0.2)',
+  }[state.phase]
 
-      <div
-        onMouseMove={onMouseMove}
-        onMouseUp={onMouseUp}
-        onMouseLeave={onMouseUp}
-        style={{
-          position: 'fixed', inset: 0,
-          pointerEvents: 'none', zIndex: 50
-        }}
-      >
-        <motion.div
-          onMouseDown={onMouseDown}
-          // ✅ Animation d'entrée + changement de phase
-          animate={{
-            scale: state.phase === 'WORK' ? 1.02 : 1,
-            boxShadow: state.phase === 'WORK'
-              ? '0 0 60px rgba(239,68,68,0.2)'
-              : state.phase === 'SHORT_BREAK'
-              ? '0 0 60px rgba(34,197,94,0.2)'
-              : state.phase === 'LONG_BREAK'
-              ? '0 0 60px rgba(59,130,246,0.2)'
-              : '0 10px 30px rgba(0,0,0,0.1)'
-          }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+  const glowShadow = {
+    IDLE:        '0 16px 48px rgba(0,0,0,0.3)',
+    WORK:        '0 0 60px rgba(239,68,68,0.12), 0 16px 48px rgba(0,0,0,0.3)',
+    SHORT_BREAK: '0 0 60px rgba(34,197,94,0.12), 0 16px 48px rgba(0,0,0,0.3)',
+    LONG_BREAK:  '0 0 60px rgba(59,130,246,0.12), 0 16px 48px rgba(0,0,0,0.3)',
+    PAUSED:      '0 0 40px rgba(245,158,11,0.1), 0 16px 48px rgba(0,0,0,0.3)',
+  }[state.phase]
+
+  return (
+    <>
+      {/* ── MoodWindow ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        {showMoodWindow && (
+          <MoodWindow
+            onSelect={handleMoodSelect}
+            onClose={handleMoodClose}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ── Fond animé selon phase ─────────────────────────────── */}
+      <PhaseTransition phase={state.phase}>
+
+        {/* Zone de drag globale (inset 0) */}
+        <div
+          onMouseMove={onMouseMove}
+          onMouseUp={onMouseUp}
+          onMouseLeave={onMouseUp}
           style={{
-            position: 'absolute',
-            left: position.x,
-            top: position.y,
-            pointerEvents: 'all',
-            cursor: activeDrag ? 'grabbing' : 'grab',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 16,
-            userSelect: 'none',
-            padding: '24px 20px',
-            backgroundColor: 'rgba(255,255,255,0.03)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: 60,
-            border: state.phase === 'WORK'
-              ? '1px solid rgba(239,68,68,0.2)'
-              : state.phase === 'SHORT_BREAK'
-              ? '1px solid rgba(34,197,94,0.2)'
-              : state.phase === 'LONG_BREAK'
-              ? '1px solid rgba(59,130,246,0.2)'
-              : '1px solid rgba(255,255,255,0.1)',
-            transform: activeDrag ? 'scale(1.02)' : 'scale(1)',
-            transition: 'border 0.5s ease'
+            position: 'fixed', inset: 0,
+            pointerEvents: 'none',
+            zIndex: 50
           }}
         >
-          {/* Barre drag */}
-          <div style={{
-            width: 36, height: 4, borderRadius: 2,
-            background: 'rgba(255,255,255,0.15)', marginBottom: -8
-          }} />
-
-          {/* ✅ Timer avec animation pulse en WORK */}
+          {/* Fenêtre draggable */}
           <motion.div
-            animate={state.phase === 'WORK'
-              ? { scale: [1, 1.01, 1] }
-              : { scale: 1 }
-            }
-            transition={{
-              repeat: state.phase === 'WORK' ? Infinity : 0,
-              duration: 2, ease: 'easeInOut'
+            onMouseDown={onMouseDown}
+            animate={{
+              scale: state.phase === 'WORK' ? 1.01 : 1,
+              boxShadow: glowShadow
+            }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            style={{
+              position: 'absolute',
+              left: position.x,
+              top: position.y,
+              pointerEvents: 'all',
+              cursor: activeDrag ? 'grabbing' : 'grab',
+              userSelect: 'none',
+
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 14,
+
+              // ✅ Fix affichage troublé : fond plus opaque
+              backgroundColor: 'rgba(8,8,8,0.60)',
+              backdropFilter: 'blur(32px)',
+              WebkitBackdropFilter: 'blur(32px)',
+              borderRadius: 56,
+              border: `1px solid ${borderColor}`,
+              padding: '22px 20px 26px',
+              transition: 'border-color 0.5s ease',
             }}
           >
-            <PomoTimer
-              progress={progress}
-              timeDisplay={timeDisplay}
-              phase={state.phase}
-              size={240}
-            />
-          </motion.div>
+            {/* Barre de drag */}
+            <div style={{
+              width: 36, height: 4,
+              borderRadius: 2,
+              background: 'rgba(255,255,255,0.18)',
+              marginBottom: -2,
+              flexShrink: 0
+            }} />
 
-          {/* Dots pomodoros avec animation */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            {Array.from({ length: state.config.pomosBeforeLongBreak }).map((_, i) => (
-              <motion.div
-                key={i}
-                animate={{
-                  scale: i === state.pomosCompleted % state.config.pomosBeforeLongBreak
-                    ? [1, 1.3, 1]
-                    : 1,
-                  background: i < state.pomosCompleted % state.config.pomosBeforeLongBreak
-                    ? '#EF4444'
-                    : 'rgba(255,255,255,0.2)'
-                }}
-                transition={{ duration: 0.4 }}
-                style={{
-                  width: 8, height: 8, borderRadius: '50%'
-                }}
-              />
-            ))}
-          </div>
-
-          {/* PhaseControls */}
-          <div onMouseDown={e => e.stopPropagation()}>
-            <PhaseControls
-              phase={state.phase}
-              dispatch={dispatch}
-              onStart={handleStart}
-              workDuration={state.config.workDuration}
-            />
-          </div>
-
-          {/* Info matière */}
-          {selectedSubject && (
+            {/* ── Timer SVG ── */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.4 }}
-              style={{
-                fontSize: 11, fontWeight: 600,
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em', color: '#fff'
+              animate={state.phase === 'WORK'
+                ? { scale: [1, 1.012, 1] }
+                : { scale: 1 }
+              }
+              transition={{
+                repeat: state.phase === 'WORK' ? Infinity : 0,
+                duration: 2.5,
+                ease: 'easeInOut'
               }}
             >
-              Focus : {selectedSubject}
-              {currentMood && (
-                <span style={{ marginLeft: 8 }}>
-                  {currentMood === 'great' ? '😄'
-                    : currentMood === 'good' ? '🙂'
-                    : currentMood === 'meh' ? '😐' : '😞'}
-                </span>
-              )}
+              <PomoTimer
+                progress={progress}
+                timeDisplay={timeDisplay}
+                phase={state.phase}
+                size={240}
+              />
             </motion.div>
-          )}
-        </motion.div>
-      </div>
 
-    </PhaseTransition>
-  </>
-)}
+            {/* ── Dots pomodoros ── */}
+            <div style={{
+              display: 'flex', gap: 8,
+              alignItems: 'center'
+            }}>
+              {Array.from({ length: state.config.pomosBeforeLongBreak }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  animate={{
+                    scale: i === state.pomosCompleted % state.config.pomosBeforeLongBreak
+                      ? [1, 1.4, 1] : 1,
+                    background: i < state.pomosCompleted % state.config.pomosBeforeLongBreak
+                      ? '#EF4444'
+                      : 'rgba(255,255,255,0.2)'
+                  }}
+                  transition={{ duration: 0.4 }}
+                  style={{
+                    width: 8, height: 8,
+                    borderRadius: '50%',
+                    flexShrink: 0
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* ── Contrôles ── */}
+            <div onMouseDown={e => e.stopPropagation()}>
+              <PhaseControls
+                phase={state.phase}
+                dispatch={dispatch}
+                onStart={handleStart}
+                workDuration={state.config.workDuration}
+              />
+            </div>
+
+            {/* ── Info matière + mood ── */}
+            <AnimatePresence>
+              {selectedSubject && (
+                <motion.div
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 0.45 }}
+                  exit={{ opacity: 0 }}
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.06em',
+                    color: '#fff',
+                    textAlign: 'center'
+                  }}
+                >
+                  🎯 {selectedSubject}
+                  {currentMood && (
+                    <span style={{ marginLeft: 8 }}>
+                      {currentMood === 'great' ? '😄'
+                        : currentMood === 'good' ? '🙂'
+                        : currentMood === 'meh' ? '😐'
+                        : '😞'}
+                    </span>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+          </motion.div>
+        </div>
+
+      </PhaseTransition>
+    </>
+  )
+}

@@ -13,7 +13,6 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'themes',   label: 'Thèmes',   icon: '🖼️' },
   { id: 'stats',    label: 'Stats',    icon: '📊' },
   { id: 'music',    label: 'Musique',  icon: '🎵' },
-  { id: 'playlist', label: 'Playlist', icon: '🎧' },
   { id: 'groups',   label: 'Groupe',   icon: '👥' },
 ]
 
