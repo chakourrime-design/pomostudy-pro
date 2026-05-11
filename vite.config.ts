@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -19,28 +19,38 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/',
         icons: [
-          {
-            src: '/Club-Logo.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: '/Club-Logo.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
-          }
+          { src: '/Club-Logo.png', sizes: '192x192', type: 'image/png' },
+          { src: '/Club-Logo.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
         ]
       },
       workbox: {
-        // ✅ Seulement JS et CSS — pas de fichiers statiques
         globPatterns: ['**/*.{js,css}'],
-        // ✅ Augmenter la limite au maximum
         maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
       }
     })
   ],
   resolve: {
     alias: { '@': '/src' }
-  }
+  },
+  // ✅ BLOC TEST — ajouter ici
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/tests/setup.ts',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov', 'html'],
+      thresholds: {
+        lines: 95,
+        functions: 95,
+        branches: 95,
+        statements: 95,
+      },
+      include: [
+        'src/hooks/**',
+        'src/utils/**',
+        'src/components/timer/**',
+      ],
+    },
+  },
 })
