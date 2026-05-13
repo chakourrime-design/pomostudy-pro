@@ -7,18 +7,16 @@ type Props = {
   onAuth: (name: string) => void
 }
 
-const FILIERES = ['ISIBD', 'GI', 'GEE', 'IIA', 'ASD', 'GMSI']
-
 export function AuthPage({ onAuth }: Props) {
   const [mode, setMode] = useState<AuthMode>('login')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [filiere, setFiliere] = useState('')
   const [error, setError] = useState('')
 
   function handleSubmit() {
     setError('')
+
     if (!email.trim() || !password.trim()) {
       setError('Remplis tous les champs')
       return
@@ -27,16 +25,11 @@ export function AuthPage({ onAuth }: Props) {
       setError('Entre ton prénom')
       return
     }
-    if (mode === 'register' && !filiere) {
-      setError('Choisis ta filière')
-      return
-    }
 
     if (mode === 'register') {
       localStorage.setItem('pomostudy_user', JSON.stringify({
         name: name.trim(),
         email: email.trim(),
-        filiere
       }))
       onAuth(name.trim())
     } else {
@@ -211,53 +204,6 @@ export function AuthPage({ onAuth }: Props) {
               onKeyDown={e => e.key === 'Enter' && handleSubmit()}
               style={inputStyle}
             />
-
-            {/* Filière — inscription seulement */}
-            {mode === 'register' && (
-              <div style={{
-                display: 'flex', flexDirection: 'column', gap: 8
-              }}>
-                <p style={{
-                  margin: 0, fontSize: 11,
-                  color: 'rgba(255,255,255,0.4)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em'
-                }}>
-                  Ta filière
-                </p>
-                <div style={{
-                  display: 'flex', gap: 6, flexWrap: 'wrap'
-                }}>
-                  {FILIERES.map(f => (
-                    <motion.button
-                      key={f}
-                      whileTap={{ scale: 0.93 }}
-                      onClick={() => setFiliere(f)}
-                      style={{
-                        padding: '6px 14px',
-                        borderRadius: 999,
-                        border: filiere === f
-                          ? '2px solid #EF4444'
-                          : '1px solid rgba(255,255,255,0.15)',
-                        background: filiere === f
-                          ? 'rgba(239,68,68,0.2)'
-                          : 'rgba(255,255,255,0.04)',
-                        color: '#fff',
-                        cursor: 'pointer',
-                        fontSize: 12,
-                        fontWeight: filiere === f ? 700 : 400,
-                        transition: 'all 0.15s',
-                        boxShadow: filiere === f
-                          ? '0 0 12px rgba(239,68,68,0.3)'
-                          : 'none'
-                      }}
-                    >
-                      {f}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
 
